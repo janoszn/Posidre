@@ -19,4 +19,8 @@ export const api = {
     //Survey
     getSurvey: (pin) => client.get(`/api/survey/public/${pin}`),
     submitSurvey: (data) => client.post('/api/survey/submit', data),
+
+    // TEACHER ROUTES
+    getTeacherSurveys: () => client.get('/api/teacher/surveys'),
+    getSurveySubmissions: (id) => client.get(`/api/teacher/surveys/${id}/submissions`),
 };
