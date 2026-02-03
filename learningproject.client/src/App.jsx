@@ -5,18 +5,19 @@ import SignUp from "./SignUp";
 import Dashboard from "./components/Dashboard"
 
 function App() {
-    const [user, setUser] = useState(null); // null = pas connecté
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showSignUp, setShowSignUp] = useState(false);
 
-    // Vérifier la session au chargement (Refresh de la page)
+    // Wait for user info on refresh
     useEffect(() => {
-        api.getUserInfo() // Utilise ta route /api/auth/manage/info
+        api.getUserInfo()
             .then(data => setUser(data))
             .catch(() => setUser(null))
             .finally(() => setLoading(false));
     }, []);
 
+    // Logout handler
     const handleLogout = async () => {
         await api.logout();
         setUser(null);

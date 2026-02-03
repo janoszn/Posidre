@@ -121,13 +121,10 @@ export default function SignUp(props) {
         const password = data.get('password');
 
         try {
-            // 1. Appel à ton API .NET
             await api.register(email, password);
 
-            // 2. Optionnel : Connecter l'utilisateur ou rediriger
             alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
 
-            // Si tu as une fonction pour basculer vers le login dans tes props :
             if (props.onShowLogin) props.onShowLogin();
 
         } catch (err) {

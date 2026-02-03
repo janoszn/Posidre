@@ -55,11 +55,8 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp }) {
         const password = data.get('password');
 
         try {
-            // 1. Appel API Login
             await api.login(email, password);
-            // 2. Appel API Infos (ton correctif)
             const realUserData = await api.getUserInfo();
-            // 3. Callback vers App.jsx
             onLoginSuccess(realUserData);
         } catch (err) {
             setApiError("Email ou mot de passe incorrect.");

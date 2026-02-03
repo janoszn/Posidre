@@ -22,7 +22,7 @@ const Dashboard = (props) => {
         <AppTheme {...props}>
         <CssBaseline enableColorScheme />
         <Box sx={{ flexGrow: 1 }}>
-            {/* Barre de navigation pro */}
+            {/* Barre de navigation */}
             <AppBar position="static" color="primary" sx={{ mb: 4 }}>
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -45,7 +45,7 @@ const Dashboard = (props) => {
 
             <Container maxWidth="md">
                 <Stack spacing={4}>
-                    {/* Section Météo dans une carte discrète */}
+                    {/* Section Météo */}
                     <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
                         <WeatherForecast />
                     </Paper>

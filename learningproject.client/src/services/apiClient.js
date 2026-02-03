@@ -1,8 +1,8 @@
-// apiClient.js
+
 async function request(url, options = {}) {
-    // Configuration par défaut pour toutes les requêtes
+    // default configuration
     const defaultOptions = {
-        credentials: 'include', // Cookie envoyé automatiquement
+        credentials: 'include', 
         headers: {
             'Content-Type': 'application/json',
             ...options.headers,
@@ -15,11 +15,11 @@ async function request(url, options = {}) {
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const error = new Error(errorData.title || "Erreur serveur");
-        error.response = errorData; // On attache le JSON d'erreurs ici !
+        error.response = errorData; 
         throw error;
     }
 
-    // Gestion du corps vide (comme pour le login ou le delete)
+    // Empty response handling
     const contentType = response.headers.get('content-type');
     if (response.status === 204 || !contentType || !contentType.includes('application/json')) {
         return null;
