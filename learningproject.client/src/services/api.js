@@ -15,4 +15,8 @@ export const api = {
 
     // WEATHER
     getWeather: () => client.get('/api/weatherforecast'),
+
+    //Survey
+    getSurvey: (pin) => client.get(`/api/survey/public/${pin}`),
+    submitSurvey: (data) => client.post('/api/survey/submit', data),
 };

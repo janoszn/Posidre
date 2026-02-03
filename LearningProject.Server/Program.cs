@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+const string FIXED_PIN = "123456";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,11 +57,37 @@ app.MapGroup("/api/auth/identity").MapIdentityApi<AppUser>();
 
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    // 1. GESTION DES RÔLES (Ton code actuel)
     foreach (var role in new[] { "Admin", "Student", "Teacher" })
     {
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole(role));
+    }
+
+    // 2. SEED DU QUESTIONNAIRE (Ajout)
+    if (!context.Surveys.Any(s => s.PinCode == FIXED_PIN))
+    {
+        var survey = new Survey
+        {
+            Title = "Évaluation du cours",
+            Description = "Merci de nous aider à améliorer la formation.",
+            PinCode = FIXED_PIN,
+            IsActive = true,
+            TeacherId = "SYSTEM", // ID temporaire
+            Questions = new List<Question>
+            {
+                new Question { Text = "Qu'avez-vous pensé de la partie React ?", Type = "text" },
+                new Question { Text = "Le rythme était-il adapté ?", Type = "text" },
+                new Question { Text = "Commentaires libres", Type = "text" }
+            }
+        };
+
+        context.Surveys.Add(survey);
+        await context.SaveChangesAsync();
+        Console.WriteLine("--> Questionnaire par défaut créé (PIN: 123456)");
     }
 }
 

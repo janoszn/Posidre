@@ -34,13 +34,14 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-export default function SignInCard({ onLoginSuccess, onShowSignUp }) {
+export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQuestionnaire }) {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [apiError, setApiError] = React.useState(''); // Pour les erreurs 401
   const [open, setOpen] = React.useState(false);
+  const [IdQuestionnaire, setIdQuestionnaire] = React.useState('');
 
 
     const handleSubmit = async (event) => {
@@ -61,6 +62,17 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp }) {
         } catch (err) {
             setApiError("Email ou mot de passe incorrect.");
             console.error(err);
+        }
+    };
+
+    const handleJoinSurvey = async (event) => {
+       event.preventDefault();
+        try {
+            // Appelle une route publique (sans [Authorize])
+            const surveyData = await api.getSurvey(IdQuestionnaire);
+            onEnterIdQuestionnaire(surveyData);
+        } catch (err) {
+            setApiError("Code PIN invalide ou questionnaire fermé.");
         }
     };
 
@@ -126,7 +138,19 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp }) {
                     </Link>
                 </Typography>
             </Box>
-            <Divider>or</Divider>
+            <Divider>ou</Divider>
+            <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
+                Étudiant ? Entrez votre code :
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, mt: 1, justifyContent: "center"}}>
+                <TextField
+                    size="small"
+                    placeholder="Code Questionnaire"
+                    value={IdQuestionnaire}
+                    onChange={(e) => setIdQuestionnaire(e.target.value)}
+                />
+                <Button type="submit" variant="contained" onClick={handleJoinSurvey} sx={{ display: 'flex', }} >Aller</Button>
+            </Box>
             {/* ... Boutons Google/Facebook ... */}
         </Card>
     );

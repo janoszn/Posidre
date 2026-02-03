@@ -3,11 +3,13 @@ import { api } from './services/api';
 import SignInSide from "./SignInSide";
 import SignUp from "./SignUp";
 import Dashboard from "./components/Dashboard"
+import PublicSurvey from "./components/Survey"
 
 function App() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showSignUp, setShowSignUp] = useState(false);
+    const [activeQuestionnaire, setActiveQuestionnaire] = useState(null);
 
     // Wait for user info on refresh
     useEffect(() => {
@@ -32,21 +34,27 @@ function App() {
             {user ? (
                 // CAS 1 : UTILISATEUR CONNECTÉ
                 <Dashboard user={user} onLogout={handleLogout} />
-            ) : (
-                // CAS 2 : UTILISATEUR NON CONNECTÉ (Affichage Login OU SignUp)
-                showSignUp ? (
-                        <SignUp
-                            onRegisterSuccess={(userData) => setUser(userData)}
-                            onShowLogin={() => setShowSignUp(false)} />
-                ) : (
-                    <SignInSide
-                        onLoginSuccess={(userData) => setUser(userData)}
-                        onShowSignUp={() => setShowSignUp(true)}
-                    />
-                )
-            )}
-        </div>
-    );
-}
+                    ) : activeQuestionnaire ? (
+                        <PublicSurvey
+                            survey={activeQuestionnaire}
+                            onCancel={() => setActiveQuestionnaire(null)}
+                        />
+                    ) : (
+                        // CAS 2 : UTILISATEUR NON CONNECTÉ (Affichage Login OU SignUp)
+                        showSignUp ? (
+                                <SignUp
+                                    onRegisterSuccess={(userData) => setUser(userData)}
+                                    onShowLogin={() => setShowSignUp(false)} />
+                        ) : (
+                            <SignInSide
+                                onLoginSuccess={(userData) => setUser(userData)}
+                                    onShowSignUp={() => setShowSignUp(true)}
+                                    onEnterIdQuestionnaire={(surveyData) => setActiveQuestionnaire(surveyData)} 
+                            />
+                        )
+                    )}
+            </div>
+        );
+    }
 
 export default App;

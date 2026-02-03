@@ -58,8 +58,9 @@ export default function SignInSide(props) {
           >
             <Content />
             <SignInCard
-                onLoginSuccess={props.onLoginSuccess}
-                onShowSignUp={props.onShowSignUp}
+                          onLoginSuccess={props.onLoginSuccess}
+                          onShowSignUp={props.onShowSignUp}
+                          onEnterIdQuestionnaire={props.onEnterIdQuestionnaire}
             />
           </Stack>
         </Stack>
