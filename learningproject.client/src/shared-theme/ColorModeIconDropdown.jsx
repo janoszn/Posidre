@@ -1,89 +1,68 @@
-import * as React from 'react';
-import DarkModeIcon from '@mui/icons-material/DarkModeRounded';
-import LightModeIcon from '@mui/icons-material/LightModeRounded';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import { useColorScheme } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
+import { Moon, Sun, Monitor } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-export default function ColorModeIconDropdown(props) {
-  const { mode, systemMode, setMode } = useColorScheme();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const handleMode = (targetMode) => () => {
-    setMode(targetMode);
-    handleClose();
-  };
-  if (!mode) {
+export default function ColorModeIconDropdown({ className }) {
+    const [mode, setMode] = useState('light');
+
+    useEffect(() => {
+        const savedMode = localStorage.getItem('theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedMode) {
+            setMode(savedMode);
+            applyTheme(savedMode, systemDark);
+        } else {
+            setMode('system');
+            applyTheme('system', systemDark);
+        }
+    }, []);
+
+    const applyTheme = (theme, systemDark) => {
+        if (theme === 'dark' || (theme === 'system' && systemDark)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    };
+
+    const handleModeChange = (newMode) => {
+        setMode(newMode);
+        localStorage.setItem('theme', newMode);
+
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(newMode, systemDark);
+    };
+
+    const Icon = mode === 'dark' ? Moon : mode === 'light' ? Sun : Monitor;
+
     return (
-      <Box
-        data-screenshot="toggle-mode"
-        sx={(theme) => ({
-          verticalAlign: 'bottom',
-          display: 'inline-flex',
-          width: '2.25rem',
-          height: '2.25rem',
-          borderRadius: (theme.vars || theme).shape.borderRadius,
-          border: '1px solid',
-          borderColor: (theme.vars || theme).palette.divider,
-        })}
-      />
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className={className}>
+                    <Icon className="h-5 w-5" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleModeChange('system')}>
+                    <Monitor className="mr-2 h-4 w-4" />
+                    System
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleModeChange('light')}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    Light
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleModeChange('dark')}>
+                    <Moon className="mr-2 h-4 w-4" />
+                    Dark
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
-  }
-  const resolvedMode = systemMode || mode;
-  const icon = {
-    light: <LightModeIcon />,
-    dark: <DarkModeIcon />,
-  }[resolvedMode];
-  return (
-    <React.Fragment>
-      <IconButton
-        data-screenshot="toggle-mode"
-        onClick={handleClick}
-        disableRipple
-        size="small"
-        aria-controls={open ? 'color-scheme-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        {...props}
-      >
-        {icon}
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        id="account-menu"
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        slotProps={{
-          paper: {
-            variant: 'outlined',
-            elevation: 0,
-            sx: {
-              my: '4px',
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        <MenuItem selected={mode === 'system'} onClick={handleMode('system')}>
-          System
-        </MenuItem>
-        <MenuItem selected={mode === 'light'} onClick={handleMode('light')}>
-          Light
-        </MenuItem>
-        <MenuItem selected={mode === 'dark'} onClick={handleMode('dark')}>
-          Dark
-        </MenuItem>
-      </Menu>
-    </React.Fragment>
-  );
 }

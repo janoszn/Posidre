@@ -1,25 +1,49 @@
-import { useColorScheme } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function ColorModeSelect(props) {
-  const { mode, setMode } = useColorScheme();
-  if (!mode) {
-    return null;
-  }
-  return (
-    <Select
-      value={mode}
-      onChange={(event) => setMode(event.target.value)}
-      SelectDisplayProps={{
-        'data-screenshot': 'toggle-mode',
-      }}
-      {...props}
-    >
-      <MenuItem value="system">System</MenuItem>
-      <MenuItem value="light">Light</MenuItem>
-      <MenuItem value="dark">Dark</MenuItem>
-    </Select>
-  );
+export default function ColorModeSelect({ className }) {
+    const [mode, setMode] = useState('light');
+
+    useEffect(() => {
+        // Check localStorage and system preference on mount
+        const savedMode = localStorage.getItem('theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedMode) {
+            setMode(savedMode);
+            applyTheme(savedMode, systemDark);
+        } else {
+            setMode('system');
+            applyTheme('system', systemDark);
+        }
+    }, []);
+
+    const applyTheme = (theme, systemDark) => {
+        if (theme === 'dark' || (theme === 'system' && systemDark)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    };
+
+    const handleChange = (value) => {
+        setMode(value);
+        localStorage.setItem('theme', value);
+
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(value, systemDark);
+    };
+
+    return (
+        <Select value={mode} onValueChange={handleChange}>
+            <SelectTrigger className={className}>
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="system">System</SelectItem>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+            </SelectContent>
+        </Select>
+    );
 }

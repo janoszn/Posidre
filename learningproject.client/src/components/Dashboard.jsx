@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import AdminContent from './AdminContent';
 import StudentContent from './StudentContent';
 import TeacherContent from './TeacherContent';
+import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
 
 const dashboardByRole = {
     Admin: AdminContent,
@@ -29,24 +30,25 @@ export default function Dashboard({ user, onLogout }) {
                     <h1 className="text-2xl font-bold">POSIDRE</h1>
 
                     <div className="flex items-center gap-4">
-                        {/* Role badge */}
-                        <Badge variant={roleColors[role]}>{role}</Badge>
 
-                        {/* User email */}
-                        <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400">
-                            {user?.email}
-                        </span>
+                        <div className="flex items-center gap-4">
 
-                        {/* Logout button */}
-                        <Button variant="ghost" size="sm" onClick={onLogout}>
-                            <LogOut className="mr-2 h-4 w-4" />
-                            Déconnexion
-                        </Button>
+                            <Badge variant={roleColors[role]}>{role}</Badge>
+
+                            <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400">
+                                {user?.email}
+                            </span>
+
+                            <ColorModeIconDropdown /> 
+                            <Button variant="ghost" size="sm" onClick={onLogout}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Déconnexion
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            {/* Main content */}
             <main className="container mx-auto px-4 py-8 max-w-4xl">
                 {ContentComponent ? (
                     <ContentComponent />
