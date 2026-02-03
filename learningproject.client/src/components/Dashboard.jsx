@@ -6,58 +6,76 @@ import {
     Button,
     Container,
     Box,
-    Paper,
-    Divider,
-    Stack,
-    CssBaseline
+    CssBaseline,
+    Chip
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
-import TodoList from './TodoList';
-import WeatherForecast from './WeatherForecast';
-import ColorModeSelect from "../shared-theme/ColorModeSelect"
+import ColorModeSelect from "../shared-theme/ColorModeSelect";
 import AppTheme from '../shared-theme/AppTheme';
+import AdminContent from './AdminContent';
+import StudentContent from './StudentContent';
+import TeacherContent from './TeacherContent';
+
+// Role → content mapping
+const dashboardByRole = {
+    Admin: <AdminContent />,
+    Student: <StudentContent />,
+    Teacher: <TeacherContent />,
+};
+
+// Role → chip color
+const roleChipColor = {
+    Admin: 'error',
+    Student: 'info',
+    Teacher: 'success',
+};
 
 const Dashboard = (props) => {
+    const role = props.user?.role;
+
     return (
         <AppTheme {...props}>
-        <CssBaseline enableColorScheme />
-        <Box sx={{ flexGrow: 1 }}>
-            {/* Barre de navigation */}
-            <AppBar position="static" color="primary" sx={{ mb: 4 }}>
-                <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        POSIDRE
-                    </Typography>
-                    <Typography variant="body1" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
-                        {props.user?.email}
-                    </Typography>
-                    
-                    <Button
-                        color="inherit"
-                        onClick={props.onLogout}
-                        startIcon={<LogoutIcon />}
-                    >
-                        Déconnexion
-                    </Button>
-                        <ColorModeSelect sx={{ml: 2} } />
-                </Toolbar>
-            </AppBar>
+            <CssBaseline enableColorScheme />
+            <Box sx={{ flexGrow: 1 }}>
+                {/* Shared navbar across all roles */}
+                <AppBar position="static" color="primary" sx={{ mb: 4 }}>
+                    <Toolbar>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                            POSIDRE
+                        </Typography>
 
-            <Container maxWidth="md">
-                <Stack spacing={4}>
-                    {/* Section Météo */}
-                    <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                        <WeatherForecast />
-                    </Paper>
+                        {/* Role badge */}
+                        <Chip
+                            label={role}
+                            color={roleChipColor[role] || 'default'}
+                            size="small"
+                            sx={{ mr: 2, fontWeight: 'bold' }}
+                        />
 
-                    <Divider />
+                        {/* Email */}
+                        <Typography variant="body1" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
+                            {props.user?.email}
+                        </Typography>
 
-                    {/* Section TodoList */}
-                    <Box>
-                        <TodoList />
-                    </Box>
-                </Stack>
-            </Container>
+                        {/* Logout */}
+                        <Button
+                            color="inherit"
+                            onClick={props.onLogout}
+                            startIcon={<LogoutIcon />}
+                        >
+                            Déconnexion
+                        </Button>
+
+                        <ColorModeSelect sx={{ ml: 2 }} />
+                    </Toolbar>
+                </AppBar>
+
+                {/* Role-specific content */}
+                <Container maxWidth="md">
+                    {dashboardByRole[role] ?? (
+                        <Typography color="error">Unknown role: {role}</Typography>
+                    )}
+                </Container>
             </Box>
         </AppTheme>
     );

@@ -21,6 +21,7 @@ function App() {
     const handleLogout = async () => {
         await api.logout();
         setUser(null);
+        setShowSignUp(false);
     };
 
 
@@ -34,7 +35,9 @@ function App() {
             ) : (
                 // CAS 2 : UTILISATEUR NON CONNECTÉ (Affichage Login OU SignUp)
                 showSignUp ? (
-                    <SignUp onShowLogin={() => setShowSignUp(false)} />
+                        <SignUp
+                            onRegisterSuccess={(userData) => setUser(userData)}
+                            onShowLogin={() => setShowSignUp(false)} />
                 ) : (
                     <SignInSide
                         onLoginSuccess={(userData) => setUser(userData)}

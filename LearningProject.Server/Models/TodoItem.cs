@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace LearningProject.Server.Models;
 public class TodoItem
@@ -9,5 +9,5 @@ public class TodoItem
 
     // Le lien avec l'utilisateur
     public string UserId { get; set; } = string.Empty;
-    public IdentityUser? User { get; set; } // Propriété de navigation
+    public AppUser? User { get; set; } // Propriété de navigation
 }

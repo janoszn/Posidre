@@ -3,9 +3,9 @@ import { client } from './apiClient';
 export const api = {
     // AUTH
     login: (email, password) => client.post('/api/auth/login?useCookies=true', { email, password }),
-    register: (email, password) => client.post('/api/auth/register', { email, password }),
+    register: (email, password, role) => client.post('/api/auth/register', { email, password, role }),
     logout: () => client.post('/api/auth/logout', {}),
-    getUserInfo: () => client.get('api/auth/manage/info'),
+    getUserInfo: () => client.get('/api/auth/me'),
 
     // TODOS
     getTodos: () => client.get('/api/todo'),
