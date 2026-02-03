@@ -1,84 +1,61 @@
-import React from 'react';
-import {
-    AppBar,
-    Toolbar,
-    Typography,
-    Button,
-    Container,
-    Box,
-    CssBaseline,
-    Chip
-} from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
-import ColorModeSelect from "../shared-theme/ColorModeSelect";
-import AppTheme from '../shared-theme/AppTheme';
+import { LogOut } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import AdminContent from './AdminContent';
 import StudentContent from './StudentContent';
 import TeacherContent from './TeacherContent';
 
-// Role → content mapping
 const dashboardByRole = {
-    Admin: <AdminContent />,
-    Student: <StudentContent />,
-    Teacher: <TeacherContent />,
+    Admin: AdminContent,
+    Student: StudentContent,
+    Teacher: TeacherContent,
 };
 
-// Role → chip color
-const roleChipColor = {
-    Admin: 'error',
-    Student: 'info',
-    Teacher: 'success',
+const roleColors = {
+    Admin: 'destructive',
+    Student: 'default',
+    Teacher: 'secondary',
 };
 
-const Dashboard = (props) => {
-    const role = props.user?.role;
+export default function Dashboard({ user, onLogout }) {
+    const role = user?.role;
+    const ContentComponent = dashboardByRole[role];
 
     return (
-        <AppTheme {...props}>
-            <CssBaseline enableColorScheme />
-            <Box sx={{ flexGrow: 1 }}>
-                {/* Shared navbar across all roles */}
-                <AppBar position="static" color="primary" sx={{ mb: 4 }}>
-                    <Toolbar>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                            POSIDRE
-                        </Typography>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+            {/* Navbar */}
+            <header className="sticky top-0 z-50 w-full border-b bg-white dark:bg-slate-950 shadow-sm">
+                <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                    <h1 className="text-2xl font-bold">POSIDRE</h1>
 
+                    <div className="flex items-center gap-4">
                         {/* Role badge */}
-                        <Chip
-                            label={role}
-                            color={roleChipColor[role] || 'default'}
-                            size="small"
-                            sx={{ mr: 2, fontWeight: 'bold' }}
-                        />
+                        <Badge variant={roleColors[role]}>{role}</Badge>
 
-                        {/* Email */}
-                        <Typography variant="body1" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
-                            {props.user?.email}
-                        </Typography>
+                        {/* User email */}
+                        <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400">
+                            {user?.email}
+                        </span>
 
-                        {/* Logout */}
-                        <Button
-                            color="inherit"
-                            onClick={props.onLogout}
-                            startIcon={<LogoutIcon />}
-                        >
+                        {/* Logout button */}
+                        <Button variant="ghost" size="sm" onClick={onLogout}>
+                            <LogOut className="mr-2 h-4 w-4" />
                             Déconnexion
                         </Button>
+                    </div>
+                </div>
+            </header>
 
-                        <ColorModeSelect sx={{ ml: 2 }} />
-                    </Toolbar>
-                </AppBar>
-
-                {/* Role-specific content */}
-                <Container maxWidth="md">
-                    {dashboardByRole[role] ?? (
-                        <Typography color="error">Unknown role: {role}</Typography>
-                    )}
-                </Container>
-            </Box>
-        </AppTheme>
+            {/* Main content */}
+            <main className="container mx-auto px-4 py-8 max-w-4xl">
+                {ContentComponent ? (
+                    <ContentComponent />
+                ) : (
+                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg p-4">
+                        <p className="text-red-600 dark:text-red-400">Unknown role: {role}</p>
+                    </div>
+                )}
+            </main>
+        </div>
     );
-};
-
-export default Dashboard;
+}

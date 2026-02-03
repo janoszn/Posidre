@@ -1,68 +1,73 @@
-import React, { useState } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Typography, Box, Tabs, Tab } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ListIcon from '@mui/icons-material/List';
-import BarChartIcon from '@mui/icons-material/BarChart';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { List, BarChart3 } from 'lucide-react';
 
-const SurveyAnswers = ({ submissions }) => {
-    const [tabValue, setTabValue] = useState(0);
-
+export default function SurveyAnswers({ submissions }) {
     if (submissions.length === 0) {
-        return <Typography sx={{ mt: 2 }}>Aucune réponse pour le moment.</Typography>;
+        return (
+            <p className="text-slate-500 mt-4">Aucune réponse pour le moment.</p>
+        );
     }
 
-    const handleTabChange = (event, newValue) => {
-        setTabValue(newValue);
-    };
-
     return (
-        <Box>
-            {/* Barre d'onglets pour basculer entre Liste et Stats */}
-            <Tabs
-                value={tabValue}
-                onChange={handleTabChange}
-                sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
-            >
-                <Tab icon={<ListIcon />} label="Réponses" iconPosition="start" />
-                <Tab icon={<BarChartIcon />} label="Statistiques" iconPosition="start" />
-            </Tabs>
+        <Tabs defaultValue="responses" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="responses" className="flex items-center gap-2">
+                    <List className="h-4 w-4" />
+                    Réponses
+                </TabsTrigger>
+                <TabsTrigger value="stats" className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Statistiques
+                </TabsTrigger>
+            </TabsList>
 
-            {/* ONGLET 0 : LISTE DES RÉPONSES (Ton code actuel) */}
-            {tabValue === 0 && (
-                <Box>
-                    <Typography variant="h6" sx={{ mb: 2, color: 'text.secondary' }}>
-                        {submissions.length} élève(s) ont répondu
-                    </Typography>
+            {/* Responses tab */}
+            <TabsContent value="responses" className="space-y-4">
+                <p className="text-sm text-slate-500">
+                    {submissions.length} élève(s) ont répondu
+                </p>
+
+                <Accordion type="single" collapsible className="w-full">
                     {submissions.map((sub) => (
-                        <Accordion key={sub.id} sx={{ mb: 1 }}>
-                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                <Typography sx={{ fontWeight: 'bold' }}>{sub.studentName}</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                {sub.answers.map((a) => (
-                                    <Box key={a.id} sx={{ mb: 2 }}>
-                                        <Typography variant="subtitle2" color="primary">{a.questionText}</Typography>
-                                        <Typography variant="body1">{a.value}</Typography>
-                                    </Box>
-                                ))}
-                            </AccordionDetails>
-                        </Accordion>
+                        <AccordionItem key={sub.id} value={sub.id.toString()}>
+                            <AccordionTrigger className="font-semibold">
+                                {sub.studentName}
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="space-y-4 pt-2">
+                                    {sub.answers.map((a) => (
+                                        <div key={a.id} className="space-y-1">
+                                            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                                {a.questionText}
+                                            </p>
+                                            <p className="text-base">{a.value}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
                     ))}
-                </Box>
-            )}
+                </Accordion>
+            </TabsContent>
 
-            {/* ONGLET 1 : STATISTIQUES (Futur composant) */}
-            {tabValue === 1 && (
-                <Box sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="h6" gutterBottom>Analyse des données</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Les graphiques de synthèse s'afficheront ici bientôt.
-                    </Typography>
-                    {/* On pourra y insérer un composant de type <SurveyChart data={submissions} /> */}
-                </Box>
-            )}
-        </Box>
+            {/* Statistics tab */}
+            <TabsContent value="stats">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Analyse des données</CardTitle>
+                        <CardDescription>
+                            Les graphiques de synthèse s'afficheront ici bientôt.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-64 flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+                            <p className="text-slate-400">Chart placeholder</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+        </Tabs>
     );
-};
-
-export default SurveyAnswers;
+}

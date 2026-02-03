@@ -1,34 +1,44 @@
-import React from 'react';
-import {
-    Paper,
-    Divider,
-    Stack,
-    Typography
-} from '@mui/material';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import WeatherForecast from './WeatherForecast';
 
 export default function AdminContent() {
     return (
-        <Stack spacing={4}>
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="h5" sx={{ mb: 2 }}>👥 User Management</Typography>
-                <Typography variant="body2" color="text.secondary">
-                    View and manage all users, assign roles, and monitor activity.
-                </Typography>
-            </Paper>
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <span>👥</span>
+                        User Management
+                    </CardTitle>
+                    <CardDescription>
+                        View and manage all users, assign roles, and monitor activity.
+                    </CardDescription>
+                </CardHeader>
+            </Card>
 
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="h5" sx={{ mb: 2 }}>📊 Platform Overview</Typography>
-                <Typography variant="body2" color="text.secondary">
-                    System stats, course stats, and overall platform health.
-                </Typography>
-            </Paper>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <span>📊</span>
+                        Platform Overview
+                    </CardTitle>
+                    <CardDescription>
+                        System stats, course stats, and overall platform health.
+                    </CardDescription>
+                </CardHeader>
+            </Card>
 
-            <Divider />
+            <Separator />
 
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <WeatherForecast />
-            </Paper>
-        </Stack>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Weather Forecast</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <WeatherForecast />
+                </CardContent>
+            </Card>
+        </div>
     );
 }
