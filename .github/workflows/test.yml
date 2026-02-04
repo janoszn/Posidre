@@ -1,5 +1,11 @@
 name: Tests
 
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
 jobs:
   backend-tests:
     name: Backend Tests (.NET)
