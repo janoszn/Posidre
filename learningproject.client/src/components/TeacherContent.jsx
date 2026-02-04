@@ -47,12 +47,16 @@ export default function TeacherContent() {
 
         setCreating(true);
         try {
-            const createdSurvey = await api.createSurvey();
-            await loadSurveys();
-            setNewSurvey(createdSurvey);
+            const response = await api.createSurvey();
+            // debug: console.log("Data reçue:", response);
+
+            // Si ton API renvoie directement l'objet (response.data ou response selon ton instance axios/api)
+            setNewSurvey(response);
+
+            // Rafraîchir la liste en arrière-plan
+            loadSurveys();
         } catch (err) {
-            console.error("Erreur lors de la création:", err);
-            alert("Erreur lors de la création du questionnaire");
+            console.error("Erreur creation:", err);
         } finally {
             setCreating(false);
         }
@@ -258,7 +262,7 @@ export default function TeacherContent() {
                                             <Plus className="h-6 w-6 text-primary" />
                                         </div>
                                         <div className="text-center md:text-left">
-                                            <h3 className="font-semibold text-lg">Créer un questionnaire</h3>
+                                            <h3 className="font-semibold text-lg">Créer un questionnaire TEDP 2.0</h3>
                                             <p className="text-sm text-muted-foreground">
                                                 Génère un nouveau code PIN pour vos élèves
                                             </p>

@@ -34,7 +34,6 @@ public class TeacherController : ControllerBase
         return Ok(surveys);
     }
 
-    // POST: api/teacher/surveys/create
     [HttpPost("surveys/create")]
     public async Task<IActionResult> CreateSurvey()
     {
@@ -43,8 +42,8 @@ public class TeacherController : ControllerBase
 
         var survey = new Survey
         {
-            Title = "Questionnaire POSIDRE",
-            Description = "Questionnaire sur les déterminants de la réussite éducative",
+            Title = "Questionnaire TEDP 2.0",
+            Description = "Déterminants de la réussite éducative",
             PinCode = pinCode,
             TeacherId = userId,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -54,94 +53,54 @@ public class TeacherController : ControllerBase
         _context.Surveys.Add(survey);
         await _context.SaveChangesAsync();
 
-        // Crée les questions avec différents types
-        var questions = new List<Question>
-    {
-        // Question 1: Échelle 0-10
-        new Question
-        {
-            Text = "Comment évaluez-vous votre motivation scolaire?",
-            Type = "scale",
-            ScaleMin = 0,
-            ScaleMax = 10,
-            ScaleMinLabel = "Aucune motivation",
-            ScaleMaxLabel = "Très motivé",
-            SurveyId = survey.Id,
-            Order = 1,
-            IsRequired = true
-        },
-        
-        // Question 2: Choix multiple (plusieurs réponses possibles)
-        new Question
-        {
-            Text = "Quels sont vos principaux défis d'apprentissage? (Plusieurs choix possibles)",
-            Type = "multiple_choice",
-            OptionsJson = JsonSerializer.Serialize(new[]
-            {
-                "Gestion du temps",
-                "Compréhension de la matière",
-                "Concentration",
-                "Motivation",
-                "Ressources insuffisantes",
-                "Autre"
-            }),
-            SurveyId = survey.Id,
-            Order = 2,
-            IsRequired = true
-        },
-        
-        // Question 3: Choix unique (une seule réponse)
-        new Question
-        {
-            Text = "Quel est votre environnement d'étude principal?",
-            Type = "single_choice",
-            OptionsJson = JsonSerializer.Serialize(new[]
-            {
-                "À la maison",
-                "À la bibliothèque",
-                "Dans un café",
-                "À l'école",
-                "Autre"
-            }),
-            SurveyId = survey.Id,
-            Order = 3,
-            IsRequired = true
-        },
-        
-        // Question 4: Texte libre
-        new Question
-        {
-            Text = "Décrivez vos objectifs académiques pour cette année:",
-            Type = "text",
-            SurveyId = survey.Id,
-            Order = 4,
-            IsRequired = false
-        },
-        
-        // Question 5: Échelle 1-5
-        new Question
-        {
-            Text = "À quel point vous sentez-vous soutenu par vos enseignants?",
-            Type = "scale",
-            ScaleMin = 1,
-            ScaleMax = 5,
-            ScaleMinLabel = "Pas du tout",
-            ScaleMaxLabel = "Énormément",
-            SurveyId = survey.Id,
-            Order = 5,
-            IsRequired = true
-        },
-        
-        // Question 6: Texte libre court
-        new Question
-        {
-            Text = "Quels soutiens ou ressources vous aideraient le plus?",
-            Type = "text",
-            SurveyId = survey.Id,
-            Order = 6,
-            IsRequired = false
-        }
+        var questions = new List<Question>();
+
+        // --- 1. OPTIONS RÉUTILISABLES (JSON) ---
+        var optLikertAccord = JsonSerializer.Serialize(new[] { "Totalement d'accord", "Assez d'accord", "Un peu d'accord", "Un peu en désaccord", "Assez en désaccord", "Totalement en désaccord" });
+        var optLikertVrai = JsonSerializer.Serialize(new[] { "Tout à fait vrai", "Vrai", "Un peu vrai", "Neutre", "Un peu faux", "Faux", "Tout à fait faux" });
+        var optFrequence = JsonSerializer.Serialize(new[] { "Jamais", "Une ou deux fois", "Plusieurs fois", "Très souvent" });
+        var optNotes = JsonSerializer.Serialize(new[] { "0-35%", "36-40%", "41-45%", "46-50%", "51-55%", "56-60%", "61-65%", "66-70%", "71-75%", "76-80%", "81-85%", "86-90%", "91-95%", "96-100%" });
+
+        // --- 2. QUESTIONS D'IDENTIFICATION (PAGE 1) ---
+        questions.Add(new Question { Text = "Année de naissance (ex: 2010)", Type = "text", Order = 1, SurveyId = survey.Id, IsRequired = true });
+        questions.Add(new Question { Text = "Sexe biologique (assigné à la naissance)", Type = "single_choice", OptionsJson = "[\"Masculin\",\"Féminin\"]", Order = 2, SurveyId = survey.Id, IsRequired = true });
+        questions.Add(new Question { Text = "Quel âge as-tu ?", Type = "single_choice", OptionsJson = "[\"12 ans ou moins\",\"13 ans\",\"14 ans\",\"15 ans\",\"16 ans\",\"17 ans\",\"18 ans ou plus\"]", Order = 3, SurveyId = survey.Id, IsRequired = true });
+        questions.Add(new Question { Text = "Quel est ton niveau scolaire ?", Type = "single_choice", OptionsJson = "[\"6e année\",\"Secondaire 1\",\"Secondaire 2\",\"Secondaire 3\",\"Secondaire 4\",\"Secondaire 5\",\"Autre\"]", Order = 4, SurveyId = survey.Id, IsRequired = true });
+
+        // --- 3. EXPÉRIENCE SCOLAIRE (PAGE 2) ---
+        questions.Add(new Question { Text = "Notes moyennes en français", Type = "single_choice", OptionsJson = optNotes, Order = 5, SurveyId = survey.Id });
+        questions.Add(new Question { Text = "Notes moyennes en mathématiques", Type = "single_choice", OptionsJson = optNotes, Order = 6, SurveyId = survey.Id });
+        questions.Add(new Question { Text = "As-tu déjà doublé une année scolaire ?", Type = "single_choice", OptionsJson = "[\"Non\",\"Oui, une fois\",\"Oui, deux fois\",\"Oui, trois fois ou plus\"]", Order = 7, SurveyId = survey.Id });
+        questions.Add(new Question { Text = "Aimes-tu l'école ?", Type = "single_choice", OptionsJson = "[\"Je n'aime pas du tout\",\"Je n'aime pas\",\"J'aime\",\"J'aime beaucoup\"]", Order = 8, SurveyId = survey.Id });
+
+        // --- 4. COMPORTEMENT (Q12 à Q17) ---
+        var comportements = new Dictionary<int, string> {
+        { 12, "Dérangé ta classe par exprès" },
+        { 13, "Répondu à un enseignant en n'étant pas poli" },
+        { 14, "Utilisé des moyens défendus pour tricher (examens)" },
+        { 15, "Manqué l'école sans excuse valable (journée complète)" },
+        { 16, "Été expulsé de ta classe par ton enseignant" },
+        { 17, "Manqué (foxé) un cours pendant que tu étais à l'école" }
     };
+        foreach (var item in comportements)
+        {
+            questions.Add(new Question { Text = item.Value, Type = "single_choice", OptionsJson = optFrequence, Order = item.Key, SurveyId = survey.Id });
+        }
+
+        // --- 5. DIMENSIONS PSYCHOSOCIALES (Q19 à Q24...) ---
+        // On utilise la liste de ton PHP pour les dimensions "Attachement" et "Engagement"
+        var likertQuestions = new Dictionary<int, string> {
+        { 19, "Je suis fier d'être un élève de cette école" },
+        { 20, "J'aime mon école" },
+        { 21, "Je me sens vraiment à ma place dans cette école" },
+        { 22, "Je préférerais être dans une autre école" },
+        { 23, "Cette école est importante pour moi" },
+        { 24, "J'apprécie le défi quand un problème est difficile à résoudre" }
+    };
+        foreach (var item in likertQuestions)
+        {
+            questions.Add(new Question { Text = item.Value, Type = "single_choice", OptionsJson = optLikertAccord, Order = item.Key, SurveyId = survey.Id });
+        }
 
         _context.Questions.AddRange(questions);
         await _context.SaveChangesAsync();
