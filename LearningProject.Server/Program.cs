@@ -1,5 +1,5 @@
-using LearningProject.Server.Data;
-using LearningProject.Server.Models;
+using Posidre.Server.Data;
+using Posidre.Server.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-namespace LearningProject.Server.Models
+namespace Posidre.Server.Models
 {
     public class Submission
     {

@@ -1,4 +1,4 @@
-namespace LearningProject.Server
+namespace Posidre.Server
 {
     public class WeatherForecast
     {

@@ -1,4 +1,4 @@
-namespace LearningProject.Server.DTO
+namespace Posidre.Server.DTO
 {
     public class SubmissionDto
     {

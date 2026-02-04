@@ -20,6 +20,12 @@ export default defineConfig({
             'react-dom': path.resolve('./node_modules/react-dom'),
         },
     },
+    test: {
+        globals: true,
+        environment: 'happy-dom',
+        setupFiles: './src/test/setup.js',
+        css: true,
+    },
     server: {
         proxy: {
             '/api': {

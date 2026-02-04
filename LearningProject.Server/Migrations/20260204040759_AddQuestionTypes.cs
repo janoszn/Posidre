@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace LearningProject.Server.Migrations
+namespace Posidre.Server.Migrations
 {
     /// <inheritdoc />
     public partial class AddQuestionTypes : Migration

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using LearningProject.Server.Models;
-using LearningProject.Server.Data;
+using Posidre.Server.Models;
+using Posidre.Server.Data;
 using Microsoft.EntityFrameworkCore;
 
 [Authorize] // Bloque les non-connectés

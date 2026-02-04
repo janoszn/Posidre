@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="learningproject.client/Posidre.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="LearningProject.Server/Posidre.Server.csproj" />
+</Solution>

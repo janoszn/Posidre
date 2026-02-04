@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace LearningProject.Server.Migrations
+namespace Posidre.Server.Migrations
 {
     /// <inheritdoc />
     public partial class InitialSurveys : Migration

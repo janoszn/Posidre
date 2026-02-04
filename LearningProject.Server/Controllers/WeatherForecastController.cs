@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LearningProject.Server.Controllers
+namespace Posidre.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

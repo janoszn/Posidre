@@ -38,5 +38,5 @@ public class Question
 
     // Navigation properties
     [JsonIgnore]
-    public Survey Survey { get; set; }
+    public Survey? Survey { get; set; }
 }

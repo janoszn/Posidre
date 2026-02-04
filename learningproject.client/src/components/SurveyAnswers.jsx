@@ -91,7 +91,7 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
         <div className="space-y-4">
             <Tabs defaultValue="responses" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="responses" className="flex items-center gap-2  hover:bg-background/50">
+                    <TabsTrigger value="responses" className="flex items-center gap-2 hover:bg-background/50">
                         <List className="h-4 w-4" />
                         Réponses
                     </TabsTrigger>

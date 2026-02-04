@@ -1,11 +1,11 @@
-using LearningProject.Server.Data;
+using Posidre.Server.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace LearningProject.Server.Controllers;
+namespace Posidre.Server.Controllers;
 
 [ApiController]
 [Route("api/teacher")]
@@ -19,11 +19,17 @@ public class TeacherController : ControllerBase
         _context = context;
     }
 
+    private string GetCurrentTeacherId()
+    {
+        return User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException();
+    }
+
     // GET: api/teacher/surveys
     [HttpGet("surveys")]
     public async Task<IActionResult> GetMySurveys()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = GetCurrentTeacherId();
 
         // Filtre les questionnaires de cet enseignant uniquement
         var surveys = await _context.Surveys
@@ -37,7 +43,7 @@ public class TeacherController : ControllerBase
     [HttpPost("surveys/create")]
     public async Task<IActionResult> CreateSurvey()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = GetCurrentTeacherId();
         var pinCode = await GenerateUniquePinCode();
 
         var survey = new Survey
@@ -113,7 +119,7 @@ public class TeacherController : ControllerBase
     [HttpGet("surveys/{id}/submissions")]
     public async Task<IActionResult> GetSubmissions(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = GetCurrentTeacherId();
 
         // Vérifie que le questionnaire appartient bien à cet enseignant
         var survey = await _context.Surveys.FindAsync(id);
@@ -148,40 +154,34 @@ public class TeacherController : ControllerBase
     [HttpDelete("surveys/{id}")]
     public async Task<IActionResult> DeleteSurvey(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = GetCurrentTeacherId();
 
-        // Trouve le questionnaire
         var survey = await _context.Surveys
             .Include(s => s.Questions)
             .FirstOrDefaultAsync(s => s.Id == id);
 
         if (survey == null)
         {
-            return NotFound("Questionnaire introuvable");
+            return NotFound("Questionnaire introuvable"); // NotFoundObjectResult
         }
 
-        // Vérifie que le questionnaire appartient bien à cet enseignant
         if (survey.TeacherId != userId)
         {
-            return Forbid();
+            return Forbid(); // ForbidResult
         }
 
-        // Supprime toutes les soumissions et réponses associées
         var submissions = await _context.Submissions
             .Where(s => s.SurveyId == id)
             .Include(s => s.Answers)
             .ToListAsync();
 
         _context.Submissions.RemoveRange(submissions);
-
-        // Supprime le questionnaire (les questions seront supprimées en cascade si configuré)
         _context.Surveys.Remove(survey);
 
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Questionnaire supprimé avec succès" });
+        return Ok(new { message = "Questionnaire supprimé avec succès" }); // OkObjectResult
     }
-
     // Méthode privée pour générer un PIN unique
     private async Task<string> GenerateUniquePinCode()
     {

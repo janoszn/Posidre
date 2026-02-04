@@ -1,11 +1,11 @@
-using LearningProject.Server.Data;
-using LearningProject.Server.Models;
-using LearningProject.Server.DTO;
+using Posidre.Server.Data;
+using Posidre.Server.Models;
+using Posidre.Server.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace LearningProject.Server.Controllers;
+namespace Posidre.Server.Controllers;
 
 [ApiController]
 [Route("api/survey")]
