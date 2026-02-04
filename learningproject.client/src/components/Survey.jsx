@@ -4,12 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
 import { api } from '../services/api';
 import RenderQuestion from "./ui/RenderQuestion";
-import { Progress } from "@/components/ui/progress"; // Si tu as le composant Progress de Shadcn
+import { Progress } from "@/components/ui/progress";
 
 export default function PublicSurvey({ survey, onCancel }) {
     const [studentName, setStudentName] = useState('');
@@ -18,29 +15,21 @@ export default function PublicSurvey({ survey, onCancel }) {
     });
     const [isStarted, setIsStarted] = useState(false);
     const [answers, setAnswers] = useState({});
-
-    // --- LOGIQUE DE PAGINATION ---
     const [currentPage, setCurrentPage] = useState(0);
-    const questionsPerPage = 5; // Tu peux changer ce nombre (ex: 10)
+    const questionsPerPage = 5;
 
-    // Trier les questions une seule fois pour éviter les sauts d'ordre
     const sortedQuestions = useMemo(() => {
         return [...survey.questions].sort((a, b) => a.order - b.order);
     }, [survey.questions]);
 
-    // Calculer le nombre total de pages
     const totalPages = Math.ceil(sortedQuestions.length / questionsPerPage);
-
-    // Obtenir les questions de la page actuelle
     const currentQuestions = sortedQuestions.slice(
         currentPage * questionsPerPage,
         (currentPage + 1) * questionsPerPage
     );
-
     const isLastPage = currentPage === totalPages - 1;
 
     const handleNext = () => {
-        // Optionnel : vérifier si les questions obligatoires de la page actuelle sont remplies
         const allRequiredAnswered = currentQuestions
             .filter(q => q.isRequired)
             .every(q => answers[q.id] !== undefined && answers[q.id] !== '');
@@ -52,7 +41,7 @@ export default function PublicSurvey({ survey, onCancel }) {
 
         if (!isLastPage) {
             setCurrentPage(prev => prev + 1);
-            window.scrollTo(0, 0); // Remonter en haut de la page
+            window.scrollTo(0, 0);
         }
     };
 
@@ -63,9 +52,7 @@ export default function PublicSurvey({ survey, onCancel }) {
         }
     };
 
-
     const handleSubmitAnswers = async () => {
-        // Ta logique existante...
         try {
             const formattedAnswers = Object.keys(answers).map(qId => ({
                 questionId: parseInt(qId),
@@ -125,13 +112,13 @@ export default function PublicSurvey({ survey, onCancel }) {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-background">
             <Card className="w-full max-w-2xl">
                 {!isStarted ? (
                     <CardContent className="pt-6">
                         <div className="text-center space-y-4">
                             <h1 className="text-3xl font-bold">{survey.title}</h1>
-                            <p className="text-slate-600 dark:text-slate-400">{survey.description}</p>
+                            <p className="text-muted-foreground">{survey.description}</p>
                             <div className="space-y-2 pt-4">
                                 <Label htmlFor="studentName">Votre Nom Complet</Label>
                                 <Input
@@ -155,21 +142,20 @@ export default function PublicSurvey({ survey, onCancel }) {
                         <CardHeader className="border-b pb-4">
                             <div className="flex justify-between items-center mb-2">
                                 <CardTitle className="text-lg">{survey.title}</CardTitle>
-                                <span className="text-sm font-medium text-slate-500">
+                                <span className="text-sm font-medium text-muted-foreground">
                                     Page {currentPage + 1} sur {totalPages}
                                 </span>
                             </div>
-                            {/* Barre de progression */}
                             <Progress value={((currentPage + 1) / totalPages) * 100} className="h-2" />
                         </CardHeader>
 
                         <CardContent className="space-y-6 pt-6">
                             {currentQuestions.map((q) => (
-                                <div key={q.id} className="space-y-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                                <div key={q.id} className="space-y-2 p-4 bg-muted/50 rounded-lg border">
                                     <Label className="text-base font-semibold flex items-start gap-2">
                                         <span className="text-primary">{q.order}.</span>
                                         {q.text}
-                                        {q.isRequired && <span className="text-red-500">*</span>}
+                                        {q.isRequired && <span className="text-destructive">*</span>}
                                     </Label>
 
                                     <RenderQuestion

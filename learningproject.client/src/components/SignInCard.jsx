@@ -58,7 +58,6 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
         <Card className="w-full shadow-2xl border-primary/20 hover:border-primary/40 transition-all duration-300">
             <CardHeader className="space-y-1 pb-4">
                 <div className="flex items-center gap-2 mb-2">
-
                     <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
                 </div>
                 <CardDescription>
@@ -86,11 +85,10 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                             placeholder="votre@courriel.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="border-slate-300 focus:border-primary focus:ring-primary"
                             required
                         />
                         {errors.email && (
-                            <p className="text-sm text-red-500">{errors.email}</p>
+                            <p className="text-sm text-destructive">{errors.email}</p>
                         )}
                     </div>
 
@@ -114,11 +112,10 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="border-slate-300 focus:border-primary focus:ring-primary"
                             required
                         />
                         {errors.password && (
-                            <p className="text-sm text-red-500">{errors.password}</p>
+                            <p className="text-sm text-destructive">{errors.password}</p>
                         )}
                     </div>
 
@@ -131,7 +128,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                     </Button>
 
                     {/* Sign up link */}
-                    <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-center text-sm text-muted-foreground">
                         Vous n'avez pas de compte?{' '}
                         <button
                             type="button"
@@ -149,13 +146,13 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                         <Separator />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white dark:bg-slate-950 px-2 text-slate-500 font-semibold">ou</span>
+                        <span className="bg-card px-2 text-muted-foreground font-semibold">ou</span>
                     </div>
                 </div>
 
                 {/* Student questionnaire entry with accent */}
-                <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border border-primary/20">
-                    <p className="text-sm font-semibold text-center text-slate-700 dark:text-slate-300 mb-3">
+                <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
+                    <p className="text-sm font-semibold text-center text-foreground mb-3">
                         🎓 Étudiant ? Entrez votre code :
                     </p>
                     <form onSubmit={handleJoinSurvey} className="flex gap-2">
@@ -163,7 +160,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                             placeholder="Code du questionnaire"
                             value={idQuestionnaire}
                             onChange={(e) => setIdQuestionnaire(e.target.value)}
-                            className="bg-white dark:bg-slate-900 border-primary/30 focus:border-primary"
+                            className="bg-card border-primary/30 focus:border-primary"
                         />
                         <Button
                             type="submit"

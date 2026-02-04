@@ -23,28 +23,25 @@ export default function Dashboard({ user, onLogout }) {
     const ContentComponent = dashboardByRole[role];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+        <div className="min-h-screen bg-background">
             {/* Navbar */}
-            <header className="sticky top-0 z-50 w-full border-b bg-white dark:bg-slate-950 shadow-sm">
+            <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
                 <div className="container mx-auto flex h-16 items-center justify-between px-4">
                     <h1 className="text-2xl font-bold">POSIDRE</h1>
 
                     <div className="flex items-center gap-4">
+                        <Badge variant={roleColors[role]}>{role}</Badge>
 
-                        <div className="flex items-center gap-4">
+                        <span className="hidden sm:inline text-sm text-muted-foreground">
+                            {user?.email}
+                        </span>
 
-                            <Badge variant={roleColors[role]}>{role}</Badge>
+                        <ColorModeIconDropdown />
 
-                            <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400">
-                                {user?.email}
-                            </span>
-
-                            <ColorModeIconDropdown /> 
-                            <Button variant="ghost" size="sm" onClick={onLogout}>
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Déconnexion
-                            </Button>
-                        </div>
+                        <Button variant="ghost" size="sm" onClick={onLogout}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Déconnexion
+                        </Button>
                     </div>
                 </div>
             </header>
@@ -53,8 +50,8 @@ export default function Dashboard({ user, onLogout }) {
                 {ContentComponent ? (
                     <ContentComponent />
                 ) : (
-                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg p-4">
-                        <p className="text-red-600 dark:text-red-400">Unknown role: {role}</p>
+                    <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                        <p className="text-destructive">Unknown role: {role}</p>
                     </div>
                 )}
             </main>

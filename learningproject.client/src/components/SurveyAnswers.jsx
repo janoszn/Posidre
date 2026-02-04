@@ -14,17 +14,14 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
         setDeleting(true);
         try {
             await onDelete(survey.id);
-            // Le parent (TeacherContent) gère la navigation
         } catch (err) {
             setDeleting(false);
-            // L'erreur est déjà gérée par le parent
         }
     };
 
     if (submissions.length === 0) {
         return (
             <div className="space-y-4">
-                {/* Message vide */}
                 <Card>
                     <CardContent className="p-8 text-center">
                         <p className="text-muted-foreground">Aucune réponse pour le moment.</p>
@@ -34,7 +31,6 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
                     </CardContent>
                 </Card>
 
-                {/* Bouton supprimer */}
                 <Button
                     variant="destructive"
                     onClick={() => setShowDeleteConfirm(true)}
@@ -44,14 +40,13 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
                     Supprimer le questionnaire
                 </Button>
 
-                {/* Modal de confirmation */}
                 {showDeleteConfirm && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                         <Card className="w-full max-w-md">
                             <CardHeader>
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-full">
-                                        <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                                    <div className="bg-destructive/10 p-2 rounded-full">
+                                        <AlertTriangle className="h-6 w-6 text-destructive" />
                                     </div>
                                     <div>
                                         <CardTitle>Confirmer la suppression</CardTitle>
@@ -106,26 +101,50 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
                     </TabsTrigger>
                 </TabsList>
 
-                {/* Responses tab */}
                 <TabsContent value="responses" className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                        {submissions.length} élève(s) ont répondu
-                    </p>
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground">
+                            {submissions.length} élève(s) ont répondu
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            Cliquez sur un nom pour voir les réponses
+                        </p>
+                    </div>
 
-                    <Accordion type="single" collapsible className="w-full">
-                        {submissions.map((sub) => (
-                            <AccordionItem key={sub.id} value={sub.id.toString()}>
-                                <AccordionTrigger className="font-semibold">
-                                    {sub.studentName}
+                    <Accordion type="single" collapsible className="w-full space-y-3">
+                        {submissions.map((sub, index) => (
+                            <AccordionItem
+                                key={sub.id}
+                                value={sub.id.toString()}
+                                className="border rounded-lg bg-card hover:bg-accent/50 transition-all duration-200 hover:shadow-md overflow-hidden"
+                            >
+                                <AccordionTrigger className="font-semibold px-4 hover:no-underline group">
+                                    <div className="flex items-center gap-3 w-full">
+
+                                        <span className="flex-1 text-left group-hover:text-primary transition-colors">
+                                            {sub.studentName}
+                                        </span>
+
+                                    </div>
                                 </AccordionTrigger>
-                                <AccordionContent>
+                                <AccordionContent className="px-4 pb-4">
                                     <div className="space-y-4 pt-2">
-                                        {sub.answers.map((a) => (
-                                            <div key={a.id} className="space-y-1">
-                                                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                                                    {a.questionText}
+                                        {sub.answers.map((a, idx) => (
+                                            <div
+                                                key={a.id}
+                                                className="space-y-2 p-3 bg-muted/50 rounded-lg border-l-4 border-primary/30"
+                                            >
+                                                <div className="flex items-start gap-2">
+                                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                                                        {idx + 1}
+                                                    </span>
+                                                    <p className="text-sm font-medium text-primary flex-1">
+                                                        {a.questionText}
+                                                    </p>
+                                                </div>
+                                                <p className="text-base pl-8 text-foreground">
+                                                    {a.value}
                                                 </p>
-                                                <p className="text-base">{a.value}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -135,7 +154,6 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
                     </Accordion>
                 </TabsContent>
 
-                {/* Statistics tab */}
                 <TabsContent value="stats">
                     <Card>
                         <CardHeader>
@@ -145,15 +163,14 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="h-64 flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
-                                <p className="text-slate-400">Chart placeholder</p>
+                            <div className="h-64 flex items-center justify-center border-2 border-dashed rounded-lg">
+                                <p className="text-muted-foreground">Chart placeholder</p>
                             </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
             </Tabs>
 
-            {/* Bouton supprimer en bas */}
             <Button
                 variant="destructive"
                 onClick={() => setShowDeleteConfirm(true)}
@@ -163,14 +180,13 @@ export default function SurveyAnswers({ submissions, survey, onDelete }) {
                 Supprimer le questionnaire
             </Button>
 
-            {/* Modal de confirmation */}
             {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <Card className="w-full max-w-md">
                         <CardHeader>
                             <div className="flex items-center gap-3">
-                                <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-full">
-                                    <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                                <div className="bg-destructive/10 p-2 rounded-full">
+                                    <AlertTriangle className="h-6 w-6 text-destructive" />
                                 </div>
                                 <div>
                                     <CardTitle>Confirmer la suppression</CardTitle>

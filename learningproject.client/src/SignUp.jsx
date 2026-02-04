@@ -20,7 +20,6 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
         setApiError('');
         setErrors({});
 
-        // Basic validation
         const newErrors = {};
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
             newErrors.email = 'Please enter a valid email address.';
@@ -61,7 +60,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50 dark:from-background dark:to-orange-950 p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">S'inscrire</CardTitle>
@@ -81,7 +80,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                 required
                             />
                             {errors.name && (
-                                <p className="text-sm text-red-500">{errors.name}</p>
+                                <p className="text-sm text-destructive">{errors.name}</p>
                             )}
                         </div>
 
@@ -97,7 +96,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                 required
                             />
                             {errors.email && (
-                                <p className="text-sm text-red-500">{errors.email}</p>
+                                <p className="text-sm text-destructive">{errors.email}</p>
                             )}
                         </div>
 
@@ -113,7 +112,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                 required
                             />
                             {errors.password && (
-                                <p className="text-sm text-red-500">{errors.password}</p>
+                                <p className="text-sm text-destructive">{errors.password}</p>
                             )}
                         </div>
 
@@ -150,17 +149,17 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                 <span className="w-full border-t" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white dark:bg-slate-950 px-2 text-slate-500">OU</span>
+                                <span className="bg-card px-2 text-muted-foreground">OU</span>
                             </div>
                         </div>
 
                         {/* Link to sign in */}
-                        <p className="text-center text-sm text-slate-500">
+                        <p className="text-center text-sm text-muted-foreground">
                             Vous avez déjà un compte ?{' '}
                             <button
                                 type="button"
                                 onClick={onShowLogin}
-                                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                                className="font-medium text-primary hover:text-primary/80"
                             >
                                 Se connecter
                             </button>

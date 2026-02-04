@@ -1,14 +1,19 @@
 import SignInCard from './components/SignInCard';
 import { GraduationCap, FilePen, Users, Award } from 'lucide-react';
+import ColorModeIconDropdown from "./shared-theme/ColorModeIconDropdown"
 
 export default function SignInSide({ onLoginSuccess, onShowSignUp, onEnterIdQuestionnaire }) {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-orange-950 p-4 relative overflow-hidden">
-            {/* Decorative background elements - MORE VISIBLE in light mode */}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-background to-amber-50 dark:from-background dark:via-background dark:to-orange-950 p-4 relative overflow-hidden">
+
+            <div className="fixed top-4 right-4 z-50">
+                <ColorModeIconDropdown />
+            </div>
+            {/* Decorative background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 dark:bg-primary/40 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-400/15 dark:bg-primary/5 rounded-full blur-3xl"></div>
-                <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-amber-300/10 dark:bg-amber-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-400/15 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-amber-300/10 rounded-full blur-3xl"></div>
             </div>
 
             <div className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 relative z-10">
@@ -26,7 +31,7 @@ export default function SignInSide({ onLoginSuccess, onShowSignUp, onEnterIdQues
                         <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-primary via-orange-500 to-amber-500 bg-clip-text text-transparent">
                             POSIDRE
                         </h1>
-                        <p className="text-xl text-slate-700 dark:text-slate-300 font-medium">
+                        <p className="text-xl text-foreground font-medium">
                             Portail des outils de suivi des indicateurs et déterminants de la réussite éducative
                         </p>
                     </div>
@@ -38,7 +43,7 @@ export default function SignInSide({ onLoginSuccess, onShowSignUp, onEnterIdQues
                                 <FilePen className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <p className="text-sm font-medium text-foreground">
                                     Questionnaire TEDP2.0
                                 </p>
                             </div>
@@ -48,7 +53,7 @@ export default function SignInSide({ onLoginSuccess, onShowSignUp, onEnterIdQues
                                 <Users className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <p className="text-sm font-medium text-foreground">
                                     Collaboration enseignants-élèves
                                 </p>
                             </div>
@@ -58,7 +63,7 @@ export default function SignInSide({ onLoginSuccess, onShowSignUp, onEnterIdQues
                                 <Award className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <p className="text-sm font-medium text-foreground">
                                     Analyse des résultats
                                 </p>
                             </div>

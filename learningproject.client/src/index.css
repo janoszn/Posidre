@@ -1,71 +1,173 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-    :root {
-        --background: 0 0% 100%;
-        --foreground: 20 14.3% 4.1%;
-        --card: 0 0% 100%;
-        --card-foreground: 20 14.3% 4.1%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 20 14.3% 4.1%;
-        /* Orange vif */
-        --primary: 24.6 95% 53.1%;
-        --primary-foreground: 60 9.1% 97.8%;
-        --secondary: 60 4.8% 95.9%;
-        --secondary-foreground: 24 9.8% 10%;
-        --muted: 60 4.8% 95.9%;
-        --muted-foreground: 25 5.3% 44.7%;
-        --accent: 43 96.4% 56.3%;
-        --accent-foreground: 26 83.3% 14.1%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 60 9.1% 97.8%;
-        --border: 20 5.9% 90%;
-        --input: 20 5.9% 90%;
-        --ring: 24.6 95% 53.1%;
-        --radius: 0.75rem;
-        --chart-1: 24.6 95% 53.1%;
-        --chart-2: 43 96% 56%;
-        --chart-3: 142 76% 36%;
-        --chart-4: 262 83% 58%;
-        --chart-5: 340 82% 52%;
+@theme {
+    /* Mappings Tailwind v4 vers variables CSS natives */
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --radius-lg: 0.75rem;
+    --radius-md: calc(0.75rem - 2px);
+    --radius-sm: calc(0.75rem - 4px);
+}
+
+/* Light Mode (défaut) */
+:root {
+    --primary: oklch(0.65 0.20 35);
+    --primary-foreground: oklch(0.98 0 0);
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.15 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.15 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.15 0 0);
+    --secondary: oklch(0.96 0 0);
+    --secondary-foreground: oklch(0.15 0 0);
+    --muted: oklch(0.96 0 0);
+    --muted-foreground: oklch(0.55 0 0);
+    --accent: oklch(0.96 0 0);
+    --accent-foreground: oklch(0.15 0 0);
+    --destructive: oklch(0.50 0.25 25);
+    --destructive-foreground: oklch(0.98 0 0);
+    --border: oklch(0.91 0 0);
+    --input: oklch(0.91 0 0);
+    --ring: oklch(0.65 0.20 35);
+}
+
+/* Dark Mode */
+.dark {
+    --background: oklch(0.15 0 0);
+    --foreground: oklch(0.98 0 0);
+    --card: oklch(0.15 0 0);
+    --card-foreground: oklch(0.98 0 0);
+    --popover: oklch(0.15 0 0);
+    --popover-foreground: oklch(0.98 0 0);
+    --primary: oklch(0.70 0.22 35);
+    --primary-foreground: oklch(0.15 0 0);
+    --secondary: oklch(0.25 0 0);
+    --secondary-foreground: oklch(0.98 0 0);
+    --muted: oklch(0.25 0 0);
+    --muted-foreground: oklch(0.65 0 0);
+    --accent: oklch(0.25 0 0);
+    --accent-foreground: oklch(0.98 0 0);
+    --destructive: oklch(0.45 0.20 25);
+    --destructive-foreground: oklch(0.98 0 0);
+    --border: oklch(0.25 0 0);
+    --input: oklch(0.25 0 0);
+    --ring: oklch(0.65 0.18 35);
+}
+
+/* Animations */
+@keyframes accordion-down {
+    from {
+        height: 0;
     }
 
-    .dark {
-        --background: 20 14.3% 4.1%;
-        --foreground: 60 9.1% 97.8%;
-        --card: 20 14.3% 4.1%;
-        --card-foreground: 60 9.1% 97.8%;
-        --popover: 20 14.3% 4.1%;
-        --popover-foreground: 60 9.1% 97.8%;
-        /* Orange lumineux pour dark */
-        --primary: 20.5 90.2% 48.2%;
-        --primary-foreground: 60 9.1% 97.8%;
-        --secondary: 12 6.5% 15.1%;
-        --secondary-foreground: 60 9.1% 97.8%;
-        --muted: 12 6.5% 15.1%;
-        --muted-foreground: 24 5.4% 63.9%;
-        --accent: 43 96% 56%;
-        --accent-foreground: 20 14.3% 4.1%;
-        --destructive: 0 72.2% 50.6%;
-        --destructive-foreground: 60 9.1% 97.8%;
-        --border: 12 6.5% 15.1%;
-        --input: 12 6.5% 15.1%;
-        --ring: 20.5 90.2% 48.2%;
-        --chart-1: 20.5 90.2% 48.2%;
-        --chart-2: 43 96% 56%;
-        --chart-3: 142 70% 45%;
-        --chart-4: 262 83% 58%;
-        --chart-5: 340 75% 55%;
+    to {
+        height: var(--radix-accordion-content-height);
+    }
+}
+
+@keyframes accordion-up {
+    from {
+        height: var(--radix-accordion-content-height);
     }
 
-    * {
-        @apply border-border;
+    to {
+        height: 0;
+    }
+}
+
+@layer utilities {
+    .animate-accordion-down {
+        animation: accordion-down 0.2s ease-out;
     }
 
-    body {
-        @apply bg-background text-foreground;
-        margin: 0;
+    .animate-accordion-up {
+        animation: accordion-up 0.2s ease-out;
     }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .animate-in, .fade-in {
+        animation: fade-in 0.3s ease-out;
+    }
+
+    @keyframes zoom-in {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .zoom-in {
+        animation: zoom-in 0.3s ease-out;
+    }
+
+    @keyframes slide-in-from-top {
+        from {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .slide-in-from-top-2 {
+        animation: slide-in-from-top 0.2s ease-out;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+}
+
+/* Styles globaux */
+* {
+    border-color: var(--border);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    transition: background-color 0.2s, color 0.2s;
 }
