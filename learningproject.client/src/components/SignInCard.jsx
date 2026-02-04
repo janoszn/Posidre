@@ -122,7 +122,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                     {/* Submit button with gradient */}
                     <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white font-semibold shadow-lg shadow-primary/20"
+                        className="w-full"
                     >
                         Se connecter
                     </Button>
@@ -164,7 +164,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                         />
                         <Button
                             type="submit"
-                            className="bg-primary hover:bg-primary/90 px-6"
+                            className="bg-primary px-6"
                         >
                             Aller
                         </Button>

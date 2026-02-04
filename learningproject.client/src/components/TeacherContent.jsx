@@ -203,7 +203,7 @@ export default function TeacherContent() {
                     {surveys.map((s) => (
                         <Card
                             key={s.id}
-                            className="cursor-pointer hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group"
+                            className="cursor-pointer hover:bg-accent/90 hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group"
                             onClick={() => handleSelectSurvey(s)}
                         >
                             <CardContent className="p-6">
@@ -212,10 +212,10 @@ export default function TeacherContent() {
                                         <ClipboardList className="h-6 w-6 text-primary" />
                                     </div>
 
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 group-hover:text-primary transition-colors" >
                                         <h3 className="text-lg font-semibold mb-1">{s.title}</h3>
                                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                            <span className="font-mono font-semibold text-primary">
+                                            <span className="font-mono font-semibold group-hover:text-primary transition-colors">
                                                 PIN: {s.pinCode}
                                             </span>
                                             <span className="flex items-center gap-1">
