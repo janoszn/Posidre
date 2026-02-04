@@ -1,157 +1,179 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import MuiCard from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import FormLabel from '@mui/material/FormLabel';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import { styled } from '@mui/material/styles';
-import ForgotPassword from './ForgotPassword';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { LogIn, KeyRound, Mail } from 'lucide-react';
 import { api } from '../services/api';
-import Alert from '@mui/material/Alert';
-
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignSelf: 'center',
-  width: '100%',
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  boxShadow:
-    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  [theme.breakpoints.up('sm')]: {
-    width: '450px',
-  },
-  ...theme.applyStyles('dark', {
-    boxShadow:
-      'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
-  }),
-}));
 
 export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQuestionnaire }) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [apiError, setApiError] = React.useState(''); // Pour les erreurs 401
-  const [open, setOpen] = React.useState(false);
-  const [IdQuestionnaire, setIdQuestionnaire] = React.useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [idQuestionnaire, setIdQuestionnaire] = useState('');
+    const [errors, setErrors] = useState({});
+    const [apiError, setApiError] = useState('');
 
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         setApiError('');
+        setErrors({});
 
-        // On valide avant d'envoyer
-        if (!validateInputs()) return;
+        const newErrors = {};
+        if (!email || !/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = 'Veuillez entrer une adresse courriel valide.';
+        }
+        if (!password || password.length < 6) {
+            newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères.';
+        }
 
-        const data = new FormData(event.currentTarget);
-        const email = data.get('email');
-        const password = data.get('password');
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
 
         try {
             await api.login(email, password);
-            const realUserData = await api.getUserInfo();
-            onLoginSuccess(realUserData);
+            const userData = await api.getUserInfo();
+            onLoginSuccess(userData);
         } catch (err) {
-            setApiError("Email ou mot de passe incorrect.");
+            setApiError("Courriel ou mot de passe incorrect.");
             console.error(err);
         }
     };
 
-    const handleJoinSurvey = async (event) => {
-       event.preventDefault();
+    const handleJoinSurvey = async (e) => {
+        e.preventDefault();
+        setApiError('');
         try {
-            // Appelle une route publique (sans [Authorize])
-            const surveyData = await api.getSurvey(IdQuestionnaire);
+            const surveyData = await api.getSurvey(idQuestionnaire);
             onEnterIdQuestionnaire(surveyData);
         } catch (err) {
             setApiError("Code PIN invalide ou questionnaire fermé.");
         }
     };
 
-  const validateInputs = () => {
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
-
-    let isValid = true;
-
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
-    }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-    }
-
-    return isValid;
-  };
-
     return (
-        <Card variant="outlined">
-            <SitemarkIcon />
-            <Typography component="h1" variant="h4">Sign in</Typography>
+        <Card className="w-full shadow-2xl border-primary/20 hover:border-primary/40 transition-all duration-300">
+            <CardHeader className="space-y-1 pb-4">
+                <div className="flex items-center gap-2 mb-2">
 
-            {/* AFFICHAGE DE L'ERREUR API SI ELLE EXISTE */}
-            {apiError && <Alert severity="error" sx={{ mb: 2 }}>{apiError}</Alert>}
+                    <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
+                </div>
+                <CardDescription>
+                    Entrez vos identifiants pour accéder à votre compte
+                </CardDescription>
+            </CardHeader>
 
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <FormControl>
-                    <FormLabel htmlFor="email">Email</FormLabel>
-                    <TextField error={emailError} helperText={emailErrorMessage} id="email" type="email" name="email" placeholder="your@email.com" required fullWidth variant="outlined" />
-                </FormControl>
-                <FormControl>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <FormLabel htmlFor="password">Password</FormLabel>
-                        <Link component="button" type="button" onClick={() => setOpen(true)} variant="body2">Forgot password?</Link>
-                    </Box>
-                    <TextField error={passwordError} helperText={passwordErrorMessage} name="password" type="password" id="password" required fullWidth variant="outlined" />
-                </FormControl>
+            <CardContent className="space-y-4">
+                {apiError && (
+                    <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
+                        <AlertDescription>{apiError}</AlertDescription>
+                    </Alert>
+                )}
 
-                <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-                <ForgotPassword open={open} handleClose={() => setOpen(false)} />
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Email */}
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-primary" />
+                            Courriel
+                        </Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="votre@courriel.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="border-slate-300 focus:border-primary focus:ring-primary"
+                            required
+                        />
+                        {errors.email && (
+                            <p className="text-sm text-red-500">{errors.email}</p>
+                        )}
+                    </div>
 
-                <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
-                    Sign in
-                </Button>
+                    {/* Password */}
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="password" className="flex items-center gap-2">
+                                <KeyRound className="h-4 w-4 text-primary" />
+                                Mot de passe
+                            </Label>
+                            <button
+                                type="button"
+                                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+                                onClick={() => alert('Mot de passe oublié cliqué')}
+                            >
+                                Mot de passe oublié?
+                            </button>
+                        </div>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="border-slate-300 focus:border-primary focus:ring-primary"
+                            required
+                        />
+                        {errors.password && (
+                            <p className="text-sm text-red-500">{errors.password}</p>
+                        )}
+                    </div>
 
-                <Typography sx={{ textAlign: 'center' }}>
-                    Don't have an account?{' '}
-                    <Link component="button" variant="body2" onClick={onShowSignUp}>
-                        Sign up
-                    </Link>
-                </Typography>
-            </Box>
-            <Divider>ou</Divider>
-            <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
-                Étudiant ? Entrez votre code :
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mt: 1, justifyContent: "center"}}>
-                <TextField
-                    size="small"
-                    placeholder="Code Questionnaire"
-                    value={IdQuestionnaire}
-                    onChange={(e) => setIdQuestionnaire(e.target.value)}
-                />
-                <Button type="submit" variant="contained" onClick={handleJoinSurvey} sx={{ display: 'flex', }} >Aller</Button>
-            </Box>
-            {/* ... Boutons Google/Facebook ... */}
+                    {/* Submit button with gradient */}
+                    <Button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white font-semibold shadow-lg shadow-primary/20"
+                    >
+                        Se connecter
+                    </Button>
+
+                    {/* Sign up link */}
+                    <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+                        Vous n'avez pas de compte?{' '}
+                        <button
+                            type="button"
+                            onClick={onShowSignUp}
+                            className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                        >
+                            S'inscrire
+                        </button>
+                    </p>
+                </form>
+
+                {/* Separator with accent color */}
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <Separator />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-white dark:bg-slate-950 px-2 text-slate-500 font-semibold">ou</span>
+                    </div>
+                </div>
+
+                {/* Student questionnaire entry with accent */}
+                <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border border-primary/20">
+                    <p className="text-sm font-semibold text-center text-slate-700 dark:text-slate-300 mb-3">
+                        🎓 Étudiant ? Entrez votre code :
+                    </p>
+                    <form onSubmit={handleJoinSurvey} className="flex gap-2">
+                        <Input
+                            placeholder="Code du questionnaire"
+                            value={idQuestionnaire}
+                            onChange={(e) => setIdQuestionnaire(e.target.value)}
+                            className="bg-white dark:bg-slate-900 border-primary/30 focus:border-primary"
+                        />
+                        <Button
+                            type="submit"
+                            className="bg-primary hover:bg-primary/90 px-6"
+                        >
+                            Aller
+                        </Button>
+                    </form>
+                </div>
+            </CardContent>
         </Card>
     );
 }

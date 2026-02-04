@@ -1,33 +1,45 @@
-import React from 'react';
-import {
-    Paper,
-    Divider,
-    Stack,
-    Typography,
-    Box
-} from '@mui/material';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import TodoList from './TodoList';
 import WeatherForecast from './WeatherForecast';
 
 export default function StudentContent() {
     return (
-        <Stack spacing={4}>
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="h5" sx={{ mb: 2 }}>📚 My Courses</Typography>
-                <Typography variant="body2" color="text.secondary">
-                    Courses you're enrolled in and your progress.
-                </Typography>
-            </Paper>
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <span>📚</span>
+                        My Courses
+                    </CardTitle>
+                    <CardDescription>
+                        Courses you're enrolled in and your progress.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-slate-500">No courses yet.</p>
+                </CardContent>
+            </Card>
 
-            <Divider />
+            <Separator />
 
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <TodoList />
-            </Paper>
+            <Card>
+                <CardHeader>
+                    <CardTitle>My Tasks</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <TodoList />
+                </CardContent>
+            </Card>
 
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <WeatherForecast />
-            </Paper>
-        </Stack>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Weather Forecast</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <WeatherForecast />
+                </CardContent>
+            </Card>
+        </div>
     );
 }

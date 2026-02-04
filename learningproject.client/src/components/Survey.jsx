@@ -1,29 +1,39 @@
-import React, { useState } from 'react';
-import { Container, Paper, Typography, TextField, Button, Box, Alert } from '@mui/material';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import { api } from '../services/api';
+import RenderQuestion from "./ui/RenderQuestion";
 
-const PublicSurvey = ({ survey, onCancel }) => {
+export default function PublicSurvey({ survey, onCancel }) {
     const [studentName, setStudentName] = useState('');
-    // Initialize alreadyDone directly from localStorage to avoid setState in useEffect
     const [alreadyDone, setAlreadyDone] = useState(() => {
         return !!localStorage.getItem(`survey_${survey.id}`);
     });
     const [isStarted, setIsStarted] = useState(false);
     const [answers, setAnswers] = useState({});
 
-    const handleSubmitAnswers = async (answers) => {
+    const handleSubmitAnswers = async () => {
         try {
-            // 1. On prépare l'objet pour l'API
+            const formattedAnswers = Object.keys(answers).map(qId => ({
+                questionId: parseInt(qId),
+                value: typeof answers[qId] === 'object'
+                    ? JSON.stringify(answers[qId])
+                    : answers[qId].toString()
+            }));
+
             const submissionData = {
                 surveyId: survey.id,
-                studentName: studentName, // Ton state défini plus haut
-                answers: answers          // <-- On utilise enfin la variable ici !
+                studentName: studentName,
+                answers: formattedAnswers
             };
 
-            // 2. Appel réel à ton service API (décommente quand tu es prêt)
             await api.submitSurvey(submissionData);
-
-            // 3. Persistance locale
             localStorage.setItem(`survey_${survey.id}`, 'true');
             setAlreadyDone(true);
 
@@ -42,84 +52,109 @@ const PublicSurvey = ({ survey, onCancel }) => {
         }));
     };
 
-    const prepareAndSubmit = () => {
-        // Transformer l'objet { "1": "rep" } en liste [{ questionId: 1, value: "rep" }]
-        const formattedAnswers = Object.keys(answers).map(qId => ({
-            questionId: parseInt(qId),
-            value: answers[qId]
-        }));
-
-        // On appelle ta fonction de soumission
-        handleSubmitAnswers(formattedAnswers);
+    const handleMultipleChoiceToggle = (questionId, option) => {
+        setAnswers(prev => {
+            const currentAnswers = prev[questionId] || [];
+            const newAnswers = currentAnswers.includes(option)
+                ? currentAnswers.filter(a => a !== option)
+                : [...currentAnswers, option];
+            return {
+                ...prev,
+                [questionId]: newAnswers
+            };
+        });
     };
 
     if (alreadyDone) {
         return (
-            <Container maxWidth="sm" sx={{ mt: 10 }}>
-                <Alert severity="info">Vous avez déjà répondu à ce questionnaire. Merci !</Alert>
-                <Button onClick={onCancel} sx={{ mt: 2 }}>Retour</Button>
-            </Container>
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <Card className="w-full max-w-md">
+                    <CardContent className="pt-6">
+                        <Alert>
+                            <AlertDescription>
+                                Vous avez déjà répondu à ce questionnaire. Merci !
+                            </AlertDescription>
+                        </Alert>
+                        <Button onClick={onCancel} className="w-full mt-4">
+                            Retour
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
         );
     }
 
     return (
-        <Container maxWidth="sm" sx={{ mt: 5 }}>
-            <Paper sx={{ p: 4, borderRadius: 3 }}>
+        <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
+            <Card className="w-full max-w-2xl">
                 {!isStarted ? (
-                    <Box textAlign="center">
-                        <Typography variant="h4">{survey.title}</Typography>
-                        <Typography sx={{ mb: 3 }}>{survey.description}</Typography>
-                        <TextField
-                            fullWidth
-                            label="Votre Nom Complet"
-                            value={studentName}
-                            onChange={(e) => setStudentName(e.target.value)}
-                            sx={{ mb: 2 }}
-                        />
-                        <Button
-                            variant="contained"
-                            disabled={!studentName}
-                            onClick={() => setIsStarted(true)}
-                        >
-                            Commencer
-                        </Button>
-                        <Button color="inherit" onClick={onCancel}>Annuler</Button>
-                    </Box>
-                ) : (
-                    <Box>
-                        <Typography variant="h5" sx={{ mb: 3 }}>{survey.title}</Typography>
+                    <CardContent className="pt-6">
+                        <div className="text-center space-y-4">
+                            <h1 className="text-3xl font-bold">{survey.title}</h1>
+                            <p className="text-slate-600 dark:text-slate-400">{survey.description}</p>
 
-                        {survey.questions.map((q) => (
-                            <Box key={q.id} sx={{ mb: 3 }}>
-                                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                                    {q.text}
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    placeholder="Votre réponse ici..."
-                                    value={answers[q.id] || ''}
-                                    onChange={(e) => handleUpdateAnswer(q.id, e.target.value)}
-                                    sx={{ mt: 1 }}
+                            <div className="space-y-2 pt-4">
+                                <Label htmlFor="studentName">Votre Nom Complet</Label>
+                                <Input
+                                    id="studentName"
+                                    value={studentName}
+                                    onChange={(e) => setStudentName(e.target.value)}
+                                    placeholder="Jean Dupont"
                                 />
-                            </Box>
-                        ))}
+                            </div>
 
-                        <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                fullWidth
-                                onClick={() => prepareAndSubmit()}
-                            >
-                                Envoyer mes réponses
-                            </Button>
-                        </Box>
-                    </Box>
+                            <div className="flex gap-2 pt-4">
+                                <Button
+                                    className="flex-1"
+                                    disabled={!studentName}
+                                    onClick={() => setIsStarted(true)}
+                                >
+                                    Commencer
+                                </Button>
+                                <Button variant="outline" onClick={onCancel}>
+                                    Annuler
+                                </Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                ) : (
+                    <>
+                        <CardHeader>
+                            <CardTitle>{survey.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {survey.questions
+                                .sort((a, b) => a.order - b.order)
+                                .map((q) => (
+                                    <div key={q.id} className="space-y-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                        <Label className="text-base font-semibold flex items-start gap-2">
+                                            <span className="text-primary">{q.order}.</span>
+                                            {q.text}
+                                            {q.isRequired && <span className="text-red-500">*</span>}
+                                        </Label>
+
+                                        <RenderQuestion
+                                            q={q}
+                                            answers={answers}
+                                            handleUpdateAnswer={handleUpdateAnswer}
+                                            handleMultipleChoiceToggle={handleMultipleChoiceToggle}
+                                        />
+                                    </div>
+                                ))
+                            }
+
+                            <div className="flex gap-2 pt-4">
+                                <Button
+                                    className="flex-1"
+                                    onClick={handleSubmitAnswers}
+                                >
+                                    Envoyer mes réponses
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </>
                 )}
-            </Paper>
-        </Container>
+            </Card>
+        </div>
     );
-};
-
-export default PublicSurvey;
+}
