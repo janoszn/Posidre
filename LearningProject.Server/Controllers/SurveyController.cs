@@ -39,7 +39,14 @@ public class PublicSurveyController : ControllerBase
             questions = survey.Questions.Select(q => new {
                 id = q.Id,
                 text = q.Text,
-                type = q.Type
+                type = q.Type,
+                order = q.Order,
+                isRequired = q.IsRequired,
+                optionsJson = q.OptionsJson,
+                scaleMin = q.ScaleMin,
+                scaleMax = q.ScaleMax,
+                scaleMinLabel = q.ScaleMinLabel,
+                scaleMaxLabel = q.ScaleMaxLabel
             })
         });
     }

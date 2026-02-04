@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 public class Survey
 {
     public int Id { get; set; }
@@ -35,5 +37,6 @@ public class Question
     public bool IsRequired { get; set; } = true;
 
     // Navigation properties
+    [JsonIgnore]
     public Survey Survey { get; set; }
 }

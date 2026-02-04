@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { api } from '../services/api';
+import RenderQuestion from "./ui/RenderQuestion";
 
 export default function PublicSurvey({ survey, onCancel }) {
     const [studentName, setStudentName] = useState('');
@@ -62,87 +63,6 @@ export default function PublicSurvey({ survey, onCancel }) {
                 [questionId]: newAnswers
             };
         });
-    };
-
-    const renderQuestion = (q) => {
-        const options = q.optionsJson ? JSON.parse(q.optionsJson) : [];
-
-        switch (q.type) {
-            case 'text':
-                return (
-                    <Input
-                        placeholder="Votre réponse ici..."
-                        value={answers[q.id] || ''}
-                        onChange={(e) => handleUpdateAnswer(q.id, e.target.value)}
-                        className="mt-2"
-                    />
-                );
-
-            case 'scale':
-                const scaleValue = answers[q.id] || q.scaleMin || 0;
-                return (
-                    <div className="space-y-4 mt-4">
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                            <span>{q.scaleMinLabel || q.scaleMin}</span>
-                            <span className="font-bold text-primary text-lg">{scaleValue}</span>
-                            <span>{q.scaleMaxLabel || q.scaleMax}</span>
-                        </div>
-                        <Slider
-                            min={q.scaleMin || 0}
-                            max={q.scaleMax || 10}
-                            step={1}
-                            value={[scaleValue]}
-                            onValueChange={(value) => handleUpdateAnswer(q.id, value[0])}
-                            className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                            {Array.from({ length: (q.scaleMax - q.scaleMin) + 1 }, (_, i) => (
-                                <span key={i}>{q.scaleMin + i}</span>
-                            ))}
-                        </div>
-                    </div>
-                );
-
-            case 'single_choice':
-                return (
-                    <RadioGroup
-                        value={answers[q.id] || ''}
-                        onValueChange={(value) => handleUpdateAnswer(q.id, value)}
-                        className="mt-3 space-y-2"
-                    >
-                        {options.map((option, idx) => (
-                            <div key={idx} className="flex items-center space-x-2">
-                                <RadioGroupItem value={option} id={`${q.id}-${idx}`} />
-                                <Label htmlFor={`${q.id}-${idx}`} className="cursor-pointer">
-                                    {option}
-                                </Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
-                );
-
-            case 'multiple_choice':
-                const selectedOptions = answers[q.id] || [];
-                return (
-                    <div className="mt-3 space-y-2">
-                        {options.map((option, idx) => (
-                            <div key={idx} className="flex items-center space-x-2">
-                                <Checkbox
-                                    id={`${q.id}-${idx}`}
-                                    checked={selectedOptions.includes(option)}
-                                    onCheckedChange={() => handleMultipleChoiceToggle(q.id, option)}
-                                />
-                                <Label htmlFor={`${q.id}-${idx}`} className="cursor-pointer">
-                                    {option}
-                                </Label>
-                            </div>
-                        ))}
-                    </div>
-                );
-
-            default:
-                return <p className="text-sm text-red-500">Type de question inconnu</p>;
-        }
     };
 
     if (alreadyDone) {
@@ -212,9 +132,16 @@ export default function PublicSurvey({ survey, onCancel }) {
                                             {q.text}
                                             {q.isRequired && <span className="text-red-500">*</span>}
                                         </Label>
-                                        {renderQuestion(q)}
+
+                                        <RenderQuestion
+                                            q={q}
+                                            answers={answers}
+                                            handleUpdateAnswer={handleUpdateAnswer}
+                                            handleMultipleChoiceToggle={handleMultipleChoiceToggle}
+                                        />
                                     </div>
-                                ))}
+                                ))
+                            }
 
                             <div className="flex gap-2 pt-4">
                                 <Button
