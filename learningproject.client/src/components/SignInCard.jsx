@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { LogIn, KeyRound, Mail } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQuestionnaire }) {
@@ -18,13 +20,12 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
         setApiError('');
         setErrors({});
 
-        // Validation
         const newErrors = {};
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
-            newErrors.email = 'Please enter a valid email address.';
+            newErrors.email = 'Veuillez entrer une adresse courriel valide.';
         }
         if (!password || password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters long.';
+            newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères.';
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -37,7 +38,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
             const userData = await api.getUserInfo();
             onLoginSuccess(userData);
         } catch (err) {
-            setApiError("Email ou mot de passe incorrect.");
+            setApiError("Courriel ou mot de passe incorrect.");
             console.error(err);
         }
     };
@@ -54,28 +55,38 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
     };
 
     return (
-        <Card className="w-full max-w-md">
-            <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-                <CardDescription>Enter your credentials to access your account</CardDescription>
+        <Card className="w-full shadow-2xl border-primary/20 hover:border-primary/40 transition-all duration-300">
+            <CardHeader className="space-y-1 pb-4">
+                <div className="flex items-center gap-2 mb-2">
+
+                    <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
+                </div>
+                <CardDescription>
+                    Entrez vos identifiants pour accéder à votre compte
+                </CardDescription>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="space-y-4">
                 {apiError && (
-                    <Alert variant="destructive" className="mb-4">
+                    <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
                         <AlertDescription>{apiError}</AlertDescription>
                     </Alert>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Email */}
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-primary" />
+                            Courriel
+                        </Label>
                         <Input
                             id="email"
                             type="email"
-                            placeholder="your@email.com"
+                            placeholder="votre@courriel.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            className="border-slate-300 focus:border-primary focus:ring-primary"
                             required
                         />
                         {errors.email && (
@@ -83,15 +94,19 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                         )}
                     </div>
 
+                    {/* Password */}
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password" className="flex items-center gap-2">
+                                <KeyRound className="h-4 w-4 text-primary" />
+                                Mot de passe
+                            </Label>
                             <button
                                 type="button"
-                                className="text-sm text-blue-600 hover:text-blue-500"
-                                onClick={() => alert('Forgot password clicked')}
+                                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+                                onClick={() => alert('Mot de passe oublié cliqué')}
                             >
-                                Forgot password?
+                                Mot de passe oublié?
                             </button>
                         </div>
                         <Input
@@ -99,6 +114,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            className="border-slate-300 focus:border-primary focus:ring-primary"
                             required
                         />
                         {errors.password && (
@@ -106,43 +122,55 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                         )}
                     </div>
 
-                    <Button type="submit" className="w-full">
-                        Sign in
+                    {/* Submit button with gradient */}
+                    <Button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white font-semibold shadow-lg shadow-primary/20"
+                    >
+                        Se connecter
                     </Button>
 
-                    <p className="text-center text-sm text-slate-500">
-                        Don't have an account?{' '}
+                    {/* Sign up link */}
+                    <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+                        Vous n'avez pas de compte?{' '}
                         <button
                             type="button"
                             onClick={onShowSignUp}
-                            className="font-medium text-blue-600 hover:text-blue-500"
+                            className="font-semibold text-primary hover:text-primary/80 transition-colors"
                         >
-                            Sign up
+                            S'inscrire
                         </button>
                     </p>
                 </form>
 
-                {/* Student questionnaire entry */}
-                <div className="relative mt-6">
+                {/* Separator with accent color */}
+                <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
+                        <Separator />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white dark:bg-slate-950 px-2 text-slate-500">ou</span>
+                        <span className="bg-white dark:bg-slate-950 px-2 text-slate-500 font-semibold">ou</span>
                     </div>
                 </div>
 
-                <div className="mt-4">
-                    <p className="text-sm text-center text-slate-600 mb-2">
-                        Étudiant ? Entrez votre code :
+                {/* Student questionnaire entry with accent */}
+                <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border border-primary/20">
+                    <p className="text-sm font-semibold text-center text-slate-700 dark:text-slate-300 mb-3">
+                        🎓 Étudiant ? Entrez votre code :
                     </p>
                     <form onSubmit={handleJoinSurvey} className="flex gap-2">
                         <Input
-                            placeholder="Code Questionnaire"
+                            placeholder="Code du questionnaire"
                             value={idQuestionnaire}
                             onChange={(e) => setIdQuestionnaire(e.target.value)}
+                            className="bg-white dark:bg-slate-900 border-primary/30 focus:border-primary"
                         />
-                        <Button type="submit">Aller</Button>
+                        <Button
+                            type="submit"
+                            className="bg-primary hover:bg-primary/90 px-6"
+                        >
+                            Aller
+                        </Button>
                     </form>
                 </div>
             </CardContent>

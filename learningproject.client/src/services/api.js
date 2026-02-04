@@ -23,4 +23,6 @@ export const api = {
     // TEACHER ROUTES
     getTeacherSurveys: () => client.get('/api/teacher/surveys'),
     getSurveySubmissions: (id) => client.get(`/api/teacher/surveys/${id}/submissions`),
+    createSurvey: () => client.post('/api/teacher/surveys/create', {}),
+    deleteSurvey: (id) => client.delete(`/api/teacher/surveys/${id}`),
 };

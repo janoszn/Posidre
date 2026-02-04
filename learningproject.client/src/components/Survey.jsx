@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import { api } from '../services/api';
 
 export default function PublicSurvey({ survey, onCancel }) {
@@ -14,12 +17,19 @@ export default function PublicSurvey({ survey, onCancel }) {
     const [isStarted, setIsStarted] = useState(false);
     const [answers, setAnswers] = useState({});
 
-    const handleSubmitAnswers = async (answers) => {
+    const handleSubmitAnswers = async () => {
         try {
+            const formattedAnswers = Object.keys(answers).map(qId => ({
+                questionId: parseInt(qId),
+                value: typeof answers[qId] === 'object'
+                    ? JSON.stringify(answers[qId])
+                    : answers[qId].toString()
+            }));
+
             const submissionData = {
                 surveyId: survey.id,
                 studentName: studentName,
-                answers: answers
+                answers: formattedAnswers
             };
 
             await api.submitSurvey(submissionData);
@@ -41,13 +51,98 @@ export default function PublicSurvey({ survey, onCancel }) {
         }));
     };
 
-    const prepareAndSubmit = () => {
-        const formattedAnswers = Object.keys(answers).map(qId => ({
-            questionId: parseInt(qId),
-            value: answers[qId]
-        }));
+    const handleMultipleChoiceToggle = (questionId, option) => {
+        setAnswers(prev => {
+            const currentAnswers = prev[questionId] || [];
+            const newAnswers = currentAnswers.includes(option)
+                ? currentAnswers.filter(a => a !== option)
+                : [...currentAnswers, option];
+            return {
+                ...prev,
+                [questionId]: newAnswers
+            };
+        });
+    };
 
-        handleSubmitAnswers(formattedAnswers);
+    const renderQuestion = (q) => {
+        const options = q.optionsJson ? JSON.parse(q.optionsJson) : [];
+
+        switch (q.type) {
+            case 'text':
+                return (
+                    <Input
+                        placeholder="Votre réponse ici..."
+                        value={answers[q.id] || ''}
+                        onChange={(e) => handleUpdateAnswer(q.id, e.target.value)}
+                        className="mt-2"
+                    />
+                );
+
+            case 'scale':
+                const scaleValue = answers[q.id] || q.scaleMin || 0;
+                return (
+                    <div className="space-y-4 mt-4">
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>{q.scaleMinLabel || q.scaleMin}</span>
+                            <span className="font-bold text-primary text-lg">{scaleValue}</span>
+                            <span>{q.scaleMaxLabel || q.scaleMax}</span>
+                        </div>
+                        <Slider
+                            min={q.scaleMin || 0}
+                            max={q.scaleMax || 10}
+                            step={1}
+                            value={[scaleValue]}
+                            onValueChange={(value) => handleUpdateAnswer(q.id, value[0])}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                            {Array.from({ length: (q.scaleMax - q.scaleMin) + 1 }, (_, i) => (
+                                <span key={i}>{q.scaleMin + i}</span>
+                            ))}
+                        </div>
+                    </div>
+                );
+
+            case 'single_choice':
+                return (
+                    <RadioGroup
+                        value={answers[q.id] || ''}
+                        onValueChange={(value) => handleUpdateAnswer(q.id, value)}
+                        className="mt-3 space-y-2"
+                    >
+                        {options.map((option, idx) => (
+                            <div key={idx} className="flex items-center space-x-2">
+                                <RadioGroupItem value={option} id={`${q.id}-${idx}`} />
+                                <Label htmlFor={`${q.id}-${idx}`} className="cursor-pointer">
+                                    {option}
+                                </Label>
+                            </div>
+                        ))}
+                    </RadioGroup>
+                );
+
+            case 'multiple_choice':
+                const selectedOptions = answers[q.id] || [];
+                return (
+                    <div className="mt-3 space-y-2">
+                        {options.map((option, idx) => (
+                            <div key={idx} className="flex items-center space-x-2">
+                                <Checkbox
+                                    id={`${q.id}-${idx}`}
+                                    checked={selectedOptions.includes(option)}
+                                    onCheckedChange={() => handleMultipleChoiceToggle(q.id, option)}
+                                />
+                                <Label htmlFor={`${q.id}-${idx}`} className="cursor-pointer">
+                                    {option}
+                                </Label>
+                            </div>
+                        ))}
+                    </div>
+                );
+
+            default:
+                return <p className="text-sm text-red-500">Type de question inconnu</p>;
+        }
     };
 
     if (alreadyDone) {
@@ -108,23 +203,23 @@ export default function PublicSurvey({ survey, onCancel }) {
                             <CardTitle>{survey.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            {survey.questions.map((q) => (
-                                <div key={q.id} className="space-y-2">
-                                    <Label className="text-base font-semibold">
-                                        {q.text}
-                                    </Label>
-                                    <Input
-                                        placeholder="Votre réponse ici..."
-                                        value={answers[q.id] || ''}
-                                        onChange={(e) => handleUpdateAnswer(q.id, e.target.value)}
-                                    />
-                                </div>
-                            ))}
+                            {survey.questions
+                                .sort((a, b) => a.order - b.order)
+                                .map((q) => (
+                                    <div key={q.id} className="space-y-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                        <Label className="text-base font-semibold flex items-start gap-2">
+                                            <span className="text-primary">{q.order}.</span>
+                                            {q.text}
+                                            {q.isRequired && <span className="text-red-500">*</span>}
+                                        </Label>
+                                        {renderQuestion(q)}
+                                    </div>
+                                ))}
 
                             <div className="flex gap-2 pt-4">
                                 <Button
                                     className="flex-1"
-                                    onClick={() => prepareAndSubmit()}
+                                    onClick={handleSubmitAnswers}
                                 >
                                     Envoyer mes réponses
                                 </Button>

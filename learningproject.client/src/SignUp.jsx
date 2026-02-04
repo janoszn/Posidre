@@ -64,18 +64,18 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold">Sign up</CardTitle>
-                    <CardDescription>Create an account to get started</CardDescription>
+                    <CardTitle className="text-2xl font-bold">S'inscrire</CardTitle>
+                    <CardDescription>Créez un compte pour commencer</CardDescription>
                 </CardHeader>
 
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {/* Name */}
                         <div className="space-y-2">
-                            <Label htmlFor="name">Full name</Label>
+                            <Label htmlFor="name">Nom complet</Label>
                             <Input
                                 id="name"
-                                placeholder="Jon Snow"
+                                placeholder="Prénom Nom"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
@@ -87,7 +87,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
 
                         {/* Email */}
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">Courriel</Label>
                             <Input
                                 id="email"
                                 type="email"
@@ -103,7 +103,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
 
                         {/* Password */}
                         <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">Mot de passe</Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -119,14 +119,14 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
 
                         {/* Role */}
                         <div className="space-y-2">
-                            <Label htmlFor="role">Role</Label>
+                            <Label htmlFor="role">Rôle</Label>
                             <Select value={role} onValueChange={setRole}>
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Student">Student</SelectItem>
-                                    <SelectItem value="Teacher">Teacher</SelectItem>
+                                    <SelectItem value="Student">Étudiant</SelectItem>
+                                    <SelectItem value="Teacher">Enseignant</SelectItem>
                                     <SelectItem value="Admin">Admin</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -141,7 +141,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
 
                         {/* Submit */}
                         <Button type="submit" className="w-full">
-                            Sign up
+                            S'inscrire
                         </Button>
 
                         {/* Divider */}
@@ -150,19 +150,19 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                 <span className="w-full border-t" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white dark:bg-slate-950 px-2 text-slate-500">or</span>
+                                <span className="bg-white dark:bg-slate-950 px-2 text-slate-500">OU</span>
                             </div>
                         </div>
 
                         {/* Link to sign in */}
                         <p className="text-center text-sm text-slate-500">
-                            Already have an account?{' '}
+                            Vous avez déjà un compte ?{' '}
                             <button
                                 type="button"
                                 onClick={onShowLogin}
                                 className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
                             >
-                                Sign in
+                                Se connecter
                             </button>
                         </p>
                     </form>
