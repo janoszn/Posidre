@@ -1,23 +1,45 @@
 name: Tests
 
-on: [push, pull_request]
-
 jobs:
-  frontend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: npm ci
-      - run: npm test
-      
   backend-tests:
+    name: Backend Tests (.NET)
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
-      - run: dotnet test
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore LearningProject.Server/Posidre.Server.csproj
+    
+    - name: Build
+      run: dotnet build LearningProject.Server/Posidre.Server.csproj --no-restore
+    
+    - name: Test
+      run: dotnet test LearningProject.Server/Posidre.Server.csproj --no-build --verbosity normal
+
+  frontend-tests:
+    name: Frontend Tests (Vitest)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: learningproject.client/package-lock.json
+    
+    - name: Install dependencies
+      run: npm ci
+      working-directory: learningproject.client
+    
+    - name: Run tests
+      run: npm test
+      working-directory: learningproject.client
