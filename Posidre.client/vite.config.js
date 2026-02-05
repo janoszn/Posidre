@@ -1,12 +1,8 @@
-import { fileURLToPath } from 'url';
-import path from "path";
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-
-// Simuler __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import path from "path"
+import fs from 'fs'
 
 export default defineConfig({
     plugins: [
@@ -16,24 +12,21 @@ export default defineConfig({
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
-            react: path.resolve('./node_modules/react'),
-            'react-dom': path.resolve('./node_modules/react-dom'),
         },
     },
-    test: {
-        globals: true,
-        environment: 'happy-dom',
-        setupFiles: './src/test/setup.js',
-        css: true,
-    },
     server: {
+        https: {
+            key: fs.readFileSync('./localhost+2-key.pem'),
+            cert: fs.readFileSync('./localhost+2.pem'),
+        },
         proxy: {
             '/api': {
-                target: 'http://localhost:5053',
-                secure: false
+                target: 'https://localhost:7053',
+                secure: false,
+                changeOrigin: true,
             }
         },
         port: 5173,
         strictPort: true,
     }
-});
+})

@@ -8,6 +8,19 @@ const string FIXED_PIN = "123456";
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure HTTPS
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenLocalhost(5053, listenOptions =>
+    {
+        listenOptions.UseHttps(); // HTTP
+    });
+    serverOptions.ListenLocalhost(7053, listenOptions =>
+    {
+        listenOptions.UseHttps(); // HTTPS
+    });
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
