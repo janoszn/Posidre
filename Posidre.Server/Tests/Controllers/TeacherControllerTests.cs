@@ -89,14 +89,14 @@ namespace Posidre.Server.Tests.Controllers
             var survey = Assert.IsType<Survey>(okResult.Value);
 
             Assert.NotNull(survey.Questions);
-            Assert.Equal(20, survey.Questions.Count); // ✅ CORRIGÉ: 20 questions au lieu de 6
+            Assert.Equal(20, survey.Questions.Count);
 
             // Vérifie que les questions sont bien ordonnées
             var orderedQuestions = survey.Questions.OrderBy(q => q.Order).ToList();
             for (int i = 0; i < orderedQuestions.Count; i++)
             {
                 Assert.True(orderedQuestions[i].Order > 0);
-                Assert.True(orderedQuestions[i].Order <= 24); // Les numéros vont jusqu'à 24
+                Assert.True(orderedQuestions[i].Order <= 24); 
             }
         }
 
