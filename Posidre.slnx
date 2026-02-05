@@ -1,7 +1,7 @@
 <Solution>
-  <Project Path="learningproject.client/Posidre.client.esproj">
+  <Project Path="Posidre.client/Posidre.client.esproj">
     <Build />
-    <Deploy />
+    <Deploy Solution="Release|*" />
   </Project>
-  <Project Path="LearningProject.Server/Posidre.Server.csproj" />
+  <Project Path="Posidre.Server/Posidre.Server.csproj" />
 </Solution>

@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <SpaRoot>..\learningproject.client</SpaRoot>
+    <SpaRoot>..\Posidre.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>http://localhost:5173</SpaProxyServerUrl>
     <UserSecretsId>50d5f911-0aae-48bb-9a41-ac87209895d1</UserSecretsId>
