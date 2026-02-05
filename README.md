@@ -11,7 +11,7 @@ Système de questionnaires éducatifs permettant aux enseignants de créer et di
 ## Fonctionnalités
 
 ### Pour les Enseignants
-- Création automatique de questionnaires TEDP 2.0 (20 questions)
+- Création automatique de questionnaires TEDP 2.0
 - Génération de codes PIN uniques
 - Consultation des réponses en temps réel
 - Gestion complète des questionnaires
@@ -28,38 +28,7 @@ Système de questionnaires éducatifs permettant aux enseignants de créer et di
 ### Prérequis
 - .NET 10 SDK
 - Node.js 18+
-- -React 19
-
-### Démarrage
-
-```bash
-# Backend
-cd LearningProject.Server
-dotnet restore
-dotnet ef database update
-dotnet run
-
-# Frontend (nouveau terminal)
-cd learningproject.client
-npm install
-npm run dev
-```
-
-Accès:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5053
-
-## Tests
-
-```bash
-# Backend
-cd LearningProject.Server
-dotnet test
-
-# Frontend
-cd learningproject.client
-npm test
-```
+- React 19
 
 ## Stack Technique
 
@@ -76,18 +45,6 @@ npm test
 - JWT Authentication
 - xUnit
 
-## Structure
-
-```
-Posidre/
-├── LearningProject.Server/     # Backend ASP.NET Core
-│   ├── Controllers/
-│   ├── Models/
-│   └── Tests/
-├── learningproject.client/     # Frontend React
-│   ├── src/
-│   └── __tests__/
-```
 
 ## Copyright
 
