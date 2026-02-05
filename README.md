@@ -40,8 +40,8 @@ Système de questionnaires éducatifs permettant aux enseignants de créer et di
 
 **Backend**
 - ASP.NET Core 10
-- Entity Framework Core 8
-- SQLite
+- Entity Framework Core 10
+- SQLite/SQL Server
 - JWT Authentication
 - xUnit
 
