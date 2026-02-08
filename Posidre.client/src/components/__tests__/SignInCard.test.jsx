@@ -93,6 +93,7 @@ describe('SignInCard', () => {
 
         api.login.mockRejectedValue(new Error('Login failed'));
 
+
         render(<SignInCard {...defaultProps} />);
 
         await user.type(screen.getByLabelText(/courriel/i), 'test@test.com');
