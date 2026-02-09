@@ -4,18 +4,28 @@ import { Badge } from "@/components/ui/badge";
 import AdminContent from './AdminContent';
 import StudentContent from './StudentContent';
 import TeacherContent from './TeacherContent';
+import SchoolAdminContent from './SchoolAdminContent';
 import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
 
 const dashboardByRole = {
     Admin: AdminContent,
     Student: StudentContent,
     Teacher: TeacherContent,
+    SchoolAdmin: SchoolAdminContent,
 };
 
 const roleColors = {
     Admin: 'destructive',
     Student: 'default',
     Teacher: 'secondary',
+    SchoolAdmin: 'default', // NEW - or choose a different color
+};
+
+const roleTitles = {
+    Admin: 'Administrateur',
+    Student: 'Étudiant',
+    Teacher: 'Enseignant',
+    SchoolAdmin: 'Admin Scolaire', // NEW
 };
 
 export default function Dashboard({ user, onLogout }) {
@@ -30,7 +40,9 @@ export default function Dashboard({ user, onLogout }) {
                     <h1 className="text-2xl font-bold">POSIDRE</h1>
 
                     <div className="flex items-center gap-4">
-                        <Badge variant={roleColors[role]}>{role}</Badge>
+                        <Badge variant={roleColors[role]}>
+                            {roleTitles[role] || role}
+                        </Badge>
 
                         <span className="hidden sm:inline text-sm text-muted-foreground">
                             {user?.email}

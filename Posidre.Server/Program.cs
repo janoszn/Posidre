@@ -4,21 +4,20 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
-const string FIXED_PIN = "123456";
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure HTTPS
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenLocalhost(5053, listenOptions =>
-    {
-        listenOptions.UseHttps(); // HTTP
-    });
-    serverOptions.ListenLocalhost(7053, listenOptions =>
-    {
-        listenOptions.UseHttps(); // HTTPS
-    });
+	serverOptions.ListenLocalhost(5053, listenOptions =>
+	{
+		listenOptions.UseHttps();
+	});
+	serverOptions.ListenLocalhost(7053, listenOptions =>
+	{
+		listenOptions.UseHttps();
+	});
 });
 
 // Add services to the container.
@@ -29,11 +28,11 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme);
 // Enable CORS 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policy => policy.WithOrigins("http://localhost:5173")
-                       .AllowAnyHeader()
-                       .AllowAnyMethod()
-                       .AllowCredentials());
+	options.AddPolicy("AllowReactApp",
+		policy => policy.WithOrigins("http://localhost:5173")
+					   .AllowAnyHeader()
+					   .AllowAnyMethod()
+					   .AllowCredentials());
 });
 
 // Connection String
@@ -41,13 +40,13 @@ var connectionString = builder.Configuration.GetConnectionString("DatabaseConnec
 
 // Setup EF Core
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+	options.UseSqlServer(connectionString));
 
 // Setup Identity — AddRoles<> is what registers RoleManager
 builder.Services.AddIdentityApiEndpoints<AppUser>()
-    .AddDefaultTokenProviders()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+	.AddDefaultTokenProviders()
+	.AddRoles<IdentityRole>()
+	.AddEntityFrameworkStores<ApplicationDbContext>();
 
 var app = builder.Build();
 
@@ -57,8 +56,8 @@ app.UseCors("AllowReactApp");
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+	app.MapOpenApi();
+	app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
@@ -68,109 +67,108 @@ app.MapControllers();
 
 app.MapGroup("/api/auth/identity").MapIdentityApi<AppUser>();
 
+// SEED ROLES
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    // 1. GESTION DES RÔLES (Ton code actuel)
-    foreach (var role in new[] { "Admin", "Student", "Teacher" })
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-            await roleManager.CreateAsync(new IdentityRole(role));
-    }
+	var services = scope.ServiceProvider;
+	var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+	var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
-    // 2. SEED DU QUESTIONNAIRE (Ajout)
-    if (!context.Surveys.Any(s => s.PinCode == FIXED_PIN))
-    {
-        var survey = new Survey
-        {
-            Title = "Évaluation du cours",
-            Description = "Merci de nous aider à améliorer la formation.",
-            PinCode = FIXED_PIN,
-            IsActive = true,
-            TeacherId = "SYSTEM", // ID temporaire
-            Questions = new List<Question>
-            {
-                new Question { Text = "Qu'avez-vous pensé de la partie React ?", Type = "text" },
-                new Question { Text = "Le rythme était-il adapté ?", Type = "text" },
-                new Question { Text = "Commentaires libres", Type = "text" }
-            }
-        };
+	// 1. CREATE ROLES (including new SchoolAdmin role)
+	foreach (var role in new[] { "Admin", "Student", "Teacher", "SchoolAdmin" })
+	{
+		if (!await roleManager.RoleExistsAsync(role))
+			await roleManager.CreateAsync(new IdentityRole(role));
+	}
 
-        context.Surveys.Add(survey);
-        await context.SaveChangesAsync();
-        Console.WriteLine("--> Questionnaire par défaut créé (PIN: 123456)");
-    }
+	// 2. CREATE TEST SCHOOL ADMIN (for development)
+	if (app.Environment.IsDevelopment())
+	{
+		var testAdminEmail = "schooladmin@test.com";
+		var existingAdmin = await userManager.FindByEmailAsync(testAdminEmail);
+
+		if (existingAdmin == null)
+		{
+			var testAdmin = new AppUser
+			{
+				UserName = testAdminEmail,
+				Email = testAdminEmail,
+				EmailConfirmed = true
+			};
+
+			var result = await userManager.CreateAsync(testAdmin, "Test123!");
+
+			if (result.Succeeded)
+			{
+				await userManager.AddToRoleAsync(testAdmin, "SchoolAdmin");
+				Console.WriteLine("--> Test School Admin created: schooladmin@test.com / Test123!");
+			}
+		}
+	}
+
 }
 
 // CUSTOM REGISTER endpoint
 app.MapPost("/api/auth/register", async (
-    RegisterRequest dto,
-    UserManager<AppUser> userManager,
-    SignInManager<AppUser> signInManager,
-    RoleManager<IdentityRole> roleManager) =>
+	RegisterRequest dto,
+	UserManager<AppUser> userManager,
+	SignInManager<AppUser> signInManager,
+	RoleManager<IdentityRole> roleManager) =>
 {
-    if (!await roleManager.RoleExistsAsync(dto.Role))
-        return Results.BadRequest(new { Message = $"Role '{dto.Role}' does not exist." });
+	if (!await roleManager.RoleExistsAsync(dto.Role))
+		return Results.BadRequest(new { Message = $"Role '{dto.Role}' does not exist." });
 
-    var user = new AppUser { UserName = dto.Email, Email = dto.Email };
-    var result = await userManager.CreateAsync(user, dto.Password);
+	var user = new AppUser { UserName = dto.Email, Email = dto.Email };
+	var result = await userManager.CreateAsync(user, dto.Password);
 
-    if (!result.Succeeded)
-        return Results.BadRequest(result.Errors);
+	if (!result.Succeeded)
+		return Results.BadRequest(result.Errors);
 
-    await userManager.AddToRoleAsync(user, dto.Role);
-    await signInManager.SignInAsync(user, isPersistent: false);
+	await userManager.AddToRoleAsync(user, dto.Role);
+	await signInManager.SignInAsync(user, isPersistent: false);
 
-    return Results.Ok(new { Message = "Registration successful", Role = dto.Role });
+	return Results.Ok(new { Message = "Registration successful", Role = dto.Role });
 });
 
 // Re-expose login at the path the frontend expects
 app.MapPost("/api/auth/login", async (
-    LoginRequest dto,
-    SignInManager<AppUser> signInManager) =>
+	LoginRequest dto,
+	SignInManager<AppUser> signInManager) =>
 {
-    var result = await signInManager.PasswordSignInAsync(dto.Email, dto.Password, isPersistent: true, lockoutOnFailure: true);
-    if (!result.Succeeded)
-        return Results.Unauthorized();
-    return Results.Ok();
+	var result = await signInManager.PasswordSignInAsync(dto.Email, dto.Password, isPersistent: true, lockoutOnFailure: true);
+	if (!result.Succeeded)
+		return Results.Unauthorized();
+	return Results.Ok();
 });
 
-// -------------------------------------------------------
 // GET current user info (email + role)
-// -------------------------------------------------------
 app.MapGet("/api/auth/me", async (
-    HttpContext ctx,
-    UserManager<AppUser> userManager) =>
+	HttpContext ctx,
+	UserManager<AppUser> userManager) =>
 {
-    var user = await userManager.GetUserAsync(ctx.User);
-    if (user == null)
-        return Results.Unauthorized();
+	var user = await userManager.GetUserAsync(ctx.User);
+	if (user == null)
+		return Results.Unauthorized();
 
-    var roles = await userManager.GetRolesAsync(user);
+	var roles = await userManager.GetRolesAsync(user);
 
-    return Results.Json(new
-    {
-        Email = user.Email,
-        Role = roles.FirstOrDefault()
-    });
+	return Results.Json(new
+	{
+		Email = user.Email,
+		Role = roles.FirstOrDefault()
+	});
 }).RequireAuthorization();
 
-// -------------------------------------------------------
 // LOGOUT
-// -------------------------------------------------------
 app.MapPost("/api/auth/logout", async (SignInManager<AppUser> signInManager) =>
 {
-    await signInManager.SignOutAsync();
-    return Results.Ok();
+	await signInManager.SignOutAsync();
+	return Results.Ok();
 }).RequireAuthorization();
 
 app.MapFallbackToFile("/index.html");
 
 app.Run();
 
-// -------------------------------------------------------
-// DTO
-// -------------------------------------------------------
+// DTOs
 public record RegisterRequest(string Email, string Password, string Role);

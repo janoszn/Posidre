@@ -9,7 +9,7 @@ function App() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showSignUp, setShowSignUp] = useState(false);
-    const [activeQuestionnaire, setActiveQuestionnaire] = useState(null);
+    const [surveyData, setSurveyData] = useState(null); // Changed from activeQuestionnaire
 
     // Check session on mount
     useEffect(() => {
@@ -40,10 +40,12 @@ function App() {
         <div className="App">
             {user ? (
                 <Dashboard user={user} onLogout={handleLogout} />
-            ) : activeQuestionnaire ? (
+            ) : surveyData ? (
+                // FIXED: Pass both survey and pin as separate props
                 <PublicSurvey
-                    survey={activeQuestionnaire}
-                    onCancel={() => setActiveQuestionnaire(null)}
+                    survey={surveyData.survey}
+                    pin={surveyData.pin}
+                    onCancel={() => setSurveyData(null)}
                 />
             ) : (
                 showSignUp ? (
@@ -55,7 +57,8 @@ function App() {
                     <SignInSide
                         onLoginSuccess={(userData) => setUser(userData)}
                         onShowSignUp={() => setShowSignUp(true)}
-                        onEnterIdQuestionnaire={(surveyData) => setActiveQuestionnaire(surveyData)}
+                        // FIXED: Receives { survey, pin } and stores it
+                        onEnterIdQuestionnaire={(data) => setSurveyData(data)}
                     />
                 )
             )}
