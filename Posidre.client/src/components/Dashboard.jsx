@@ -44,21 +44,6 @@ export default function Dashboard({ user, onLogout }) {
                     <div className="flex items-center justify-between">
                         {/* Logo & Title */}
                         <div className="flex items-center gap-4">
-                            <div className="bg-gradient-to-br from-primary to-orange-500 text-white p-3 rounded-lg shadow-lg">
-                                <svg
-                                    className="h-6 w-6"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                </svg>
-                            </div>
                             <div>
                                 <h1 className="text-2xl font-bold">POSIDRE</h1>
                                 <p className="text-sm text-muted-foreground">

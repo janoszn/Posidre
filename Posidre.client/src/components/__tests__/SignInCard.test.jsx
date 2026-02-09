@@ -116,15 +116,12 @@ describe('SignInCard', () => {
         expect(mockOnShowSignUp).toHaveBeenCalled();
     });
 
-    // FIXED: Correct validatePin response structure
     it('submits survey code successfully', async () => {
         const user = userEvent.setup();
         const mockOnEnterIdQuestionnaire = vi.fn();
-
-        // FIXED: validatePin returns { isValid: true, survey: {...} }
         const mockValidateResponse = {
             isValid: true,
-            survey: {
+            questionnaire: {
                 id: 1,
                 title: 'Test Survey',
                 description: 'Test Description',
@@ -144,9 +141,9 @@ describe('SignInCard', () => {
 
         await waitFor(() => {
             expect(api.validatePin).toHaveBeenCalledWith('123456');
-            // FIXED: Callback receives { survey, pin }
+            // FIXED: Callback receives { questionnaire, pin }
             expect(mockOnEnterIdQuestionnaire).toHaveBeenCalledWith({
-                survey: mockValidateResponse.survey,
+                survey: mockValidateResponse.questionnaire,
                 pin: '123456'
             });
         });
