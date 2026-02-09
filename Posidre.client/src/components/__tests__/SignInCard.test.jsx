@@ -9,7 +9,7 @@ vi.mock('../../services/api', () => ({
     api: {
         login: vi.fn(),
         getUserInfo: vi.fn(),
-        getSurvey: vi.fn(),
+        validatePin: vi.fn(),
     }
 }));
 
@@ -93,7 +93,6 @@ describe('SignInCard', () => {
 
         api.login.mockRejectedValue(new Error('Login failed'));
 
-
         render(<SignInCard {...defaultProps} />);
 
         await user.type(screen.getByLabelText(/courriel/i), 'test@test.com');
@@ -117,36 +116,54 @@ describe('SignInCard', () => {
         expect(mockOnShowSignUp).toHaveBeenCalled();
     });
 
+    // FIXED: Correct validatePin response structure
     it('submits survey code successfully', async () => {
         const user = userEvent.setup();
         const mockOnEnterIdQuestionnaire = vi.fn();
-        const mockSurveyData = { id: 1, title: 'Test Survey' };
 
-        api.getSurvey.mockResolvedValue(mockSurveyData);
+        // FIXED: validatePin returns { isValid: true, survey: {...} }
+        const mockValidateResponse = {
+            isValid: true,
+            survey: {
+                id: 1,
+                title: 'Test Survey',
+                description: 'Test Description',
+                questions: []
+            }
+        };
+
+        api.validatePin.mockResolvedValue(mockValidateResponse);
 
         render(<SignInCard {...defaultProps} onEnterIdQuestionnaire={mockOnEnterIdQuestionnaire} />);
 
-        const codeInput = screen.getByPlaceholderText(/code du questionnaire/i);
-        const goButton = screen.getByRole('button', { name: /aller/i });
+        const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
+        const goButton = screen.getByRole('button', { name: /questionnaire/i });
 
         await user.type(codeInput, '123456');
         await user.click(goButton);
 
         await waitFor(() => {
-            expect(api.getSurvey).toHaveBeenCalledWith('123456');
-            expect(mockOnEnterIdQuestionnaire).toHaveBeenCalledWith(mockSurveyData);
+            expect(api.validatePin).toHaveBeenCalledWith('123456');
+            // FIXED: Callback receives { survey, pin }
+            expect(mockOnEnterIdQuestionnaire).toHaveBeenCalledWith({
+                survey: mockValidateResponse.survey,
+                pin: '123456'
+            });
         });
     });
 
     it('displays error for invalid survey code', async () => {
         const user = userEvent.setup();
 
-        api.getSurvey.mockRejectedValue(new Error('Invalid code'));
+        // FIXED: Reject with proper error structure
+        api.validatePin.mockRejectedValue({
+            response: { message: 'Code PIN invalide ou déjà utilisé' }
+        });
 
         render(<SignInCard {...defaultProps} />);
 
-        const codeInput = screen.getByPlaceholderText(/code du questionnaire/i);
-        const goButton = screen.getByRole('button', { name: /aller/i });
+        const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
+        const goButton = screen.getByRole('button', { name: /questionnaire/i });
 
         await user.type(codeInput, '999999');
         await user.click(goButton);
@@ -154,5 +171,85 @@ describe('SignInCard', () => {
         await waitFor(() => {
             expect(screen.getByText(/code pin invalide/i)).toBeInTheDocument();
         });
+    });
+
+    // BONUS: Additional tests for PIN validation
+    it('only allows 6-digit numeric input for PIN', async () => {
+        const user = userEvent.setup();
+        render(<SignInCard {...defaultProps} />);
+
+        const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
+
+        // Try typing letters (should be filtered out)
+        await user.type(codeInput, 'abc123def');
+        expect(codeInput).toHaveValue('123');
+
+        // Clear and try more than 6 digits
+        await user.clear(codeInput);
+        await user.type(codeInput, '12345678');
+        expect(codeInput).toHaveValue('123456'); // Max 6 digits
+    });
+
+    it('disables submit button when PIN is not 6 digits', async () => {
+        const user = userEvent.setup();
+        render(<SignInCard {...defaultProps} />);
+
+        const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
+        const goButton = screen.getByRole('button', { name: /questionnaire/i });
+
+        // Initially disabled (empty)
+        expect(goButton).toBeDisabled();
+
+        // Still disabled with less than 6 digits
+        await user.type(codeInput, '12345');
+        expect(goButton).toBeDisabled();
+
+        // Enabled with exactly 6 digits
+        await user.type(codeInput, '6');
+        expect(goButton).toBeEnabled();
+    });
+
+    it('shows loading state while validating PIN', async () => {
+        const user = userEvent.setup();
+
+        // Mock slow API response
+        api.validatePin.mockImplementation(() =>
+            new Promise(resolve => setTimeout(() => resolve({
+                isValid: true,
+                survey: { id: 1, title: 'Test', questions: [] }
+            }), 100))
+        );
+
+        render(<SignInCard {...defaultProps} />);
+
+        const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
+        const goButton = screen.getByRole('button', { name: /questionnaire/i });
+
+        await user.type(codeInput, '123456');
+        await user.click(goButton);
+
+        // Should show loading state
+        await waitFor(() => {
+            expect(screen.getByText(/vérification/i)).toBeInTheDocument();
+        });
+
+        // Wait for completion
+        await waitFor(() => {
+            expect(api.validatePin).toHaveBeenCalled();
+        }, { timeout: 200 });
+    });
+
+    it('shows error when PIN format is invalid', async () => {
+        const user = userEvent.setup();
+        render(<SignInCard {...defaultProps} />);
+
+        const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
+        const goButton = screen.getByRole('button', { name: /questionnaire/i });
+
+        // Try submitting with less than 6 digits
+        await user.type(codeInput, '12345');
+
+        // Button should be disabled, so this won't actually submit
+        expect(goButton).toBeDisabled();
     });
 });
