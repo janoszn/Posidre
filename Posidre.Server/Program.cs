@@ -67,7 +67,6 @@ app.MapControllers();
 
 app.MapGroup("/api/auth/identity").MapIdentityApi<AppUser>();
 
-// SEED ROLES
 using (var scope = app.Services.CreateScope())
 {
 	var services = scope.ServiceProvider;
@@ -78,7 +77,10 @@ using (var scope = app.Services.CreateScope())
 	foreach (var role in new[] { "Admin", "Student", "Teacher", "SchoolAdmin" })
 	{
 		if (!await roleManager.RoleExistsAsync(role))
+		{
 			await roleManager.CreateAsync(new IdentityRole(role));
+			Console.WriteLine($"--> Role created: {role}");
+		}
 	}
 
 	// 2. CREATE TEST SCHOOL ADMIN (for development)
@@ -86,7 +88,6 @@ using (var scope = app.Services.CreateScope())
 	{
 		var testAdminEmail = "schooladmin@test.com";
 		var existingAdmin = await userManager.FindByEmailAsync(testAdminEmail);
-
 		if (existingAdmin == null)
 		{
 			var testAdmin = new AppUser
@@ -95,17 +96,248 @@ using (var scope = app.Services.CreateScope())
 				Email = testAdminEmail,
 				EmailConfirmed = true
 			};
-
 			var result = await userManager.CreateAsync(testAdmin, "Test123!");
-
 			if (result.Succeeded)
 			{
 				await userManager.AddToRoleAsync(testAdmin, "SchoolAdmin");
 				Console.WriteLine("--> Test School Admin created: schooladmin@test.com / Test123!");
 			}
 		}
+		else
+		{
+			Console.WriteLine("--> Test School Admin already exists");
+		}
 	}
 
+	// 3. SEED TEDP 2.0 TEMPLATE
+	try
+	{
+		var context = services.GetRequiredService<ApplicationDbContext>();
+
+		// Check if template already exists
+		if (!await context.Questionnaires.AnyAsync(q => q.Title == "TEDP 2.0"))
+		{
+			Console.WriteLine("--> Seeding TEDP 2.0 template...");
+
+			var questionnaire = new Questionnaire
+			{
+				Title = "TEDP 2.0",
+				Description = "Trousse d'évaluation des déterminants de la persévérance et de la réussite éducative au secondaire",
+				Version = "2.0",
+				IsTemplate = true,
+				CreatedBy = "system",
+				CreatedAt = DateTimeOffset.UtcNow
+			};
+
+			context.Questionnaires.Add(questionnaire);
+			await context.SaveChangesAsync();
+
+			// Add 20 TEDP 2.0 questions
+			var questions = new List<QuestionnaireQuestion>
+			{
+                // IDENTIFICATION (Questions 1-4)
+                new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Année de naissance (ex: 2010)",
+					Type = "text",
+					Order = 1,
+					IsRequired = true
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Sexe biologique",
+					Type = "single_choice",
+					Order = 2,
+					IsRequired = true,
+					OptionsJson = "[\"Masculin\",\"Féminin\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Quel âge as-tu ?",
+					Type = "single_choice",
+					Order = 3,
+					IsRequired = true,
+					OptionsJson = "[\"12 ans ou moins\",\"13 ans\",\"14 ans\",\"15 ans\",\"16 ans\",\"17 ans\",\"18 ans ou plus\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Quel est ton niveau scolaire actuel ?",
+					Type = "single_choice",
+					Order = 4,
+					IsRequired = true,
+					OptionsJson = "[\"6e année\",\"Secondaire 1\",\"Secondaire 2\",\"Secondaire 3\",\"Secondaire 4\",\"Secondaire 5\"]"
+				},
+
+                // ACADEMIC (Questions 5-8)
+                new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Quelle est ta note moyenne approximative en français ?",
+					Type = "single_choice",
+					Order = 5,
+					IsRequired = false,
+					OptionsJson = "[\"0-35%\",\"36-40%\",\"41-45%\",\"46-50%\",\"51-55%\",\"56-60%\",\"61-65%\",\"66-70%\",\"71-75%\",\"76-80%\",\"81-85%\",\"86-90%\",\"91-95%\",\"96-100%\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Quelle est ta note moyenne approximative en mathématiques ?",
+					Type = "single_choice",
+					Order = 6,
+					IsRequired = false,
+					OptionsJson = "[\"0-35%\",\"36-40%\",\"41-45%\",\"46-50%\",\"51-55%\",\"56-60%\",\"61-65%\",\"66-70%\",\"71-75%\",\"76-80%\",\"81-85%\",\"86-90%\",\"91-95%\",\"96-100%\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Combien d'heures consacres-tu à tes devoirs et leçons chaque soir ?",
+					Type = "single_choice",
+					Order = 7,
+					IsRequired = false,
+					OptionsJson = "[\"Aucune\",\"Moins d'une heure\",\"1 à 2 heures\",\"2 à 3 heures\",\"Plus de 3 heures\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "As-tu redoublé une année scolaire ?",
+					Type = "single_choice",
+					Order = 8,
+					IsRequired = false,
+					OptionsJson = "[\"Oui\",\"Non\"]"
+				},
+
+                // BEHAVIORAL (Questions 9-12)
+                new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Combien de fois as-tu été absent(e) à l'école ce mois-ci ?",
+					Type = "single_choice",
+					Order = 9,
+					IsRequired = false,
+					OptionsJson = "[\"0\",\"1-2 fois\",\"3-5 fois\",\"6-10 fois\",\"Plus de 10 fois\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Arrives-tu généralement à l'heure à l'école ?",
+					Type = "single_choice",
+					Order = 10,
+					IsRequired = false,
+					OptionsJson = "[\"Toujours\",\"Souvent\",\"Parfois\",\"Rarement\",\"Jamais\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Combien de fois as-tu eu des retenues cette année ?",
+					Type = "single_choice",
+					Order = 11,
+					IsRequired = false,
+					OptionsJson = "[\"0\",\"1-2 fois\",\"3-5 fois\",\"Plus de 5 fois\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Participes-tu à des activités parascolaires ?",
+					Type = "single_choice",
+					Order = 12,
+					IsRequired = false,
+					OptionsJson = "[\"Oui, régulièrement\",\"Oui, occasionnellement\",\"Non\"]"
+				},
+
+                // PSYCHOSOCIAL (Questions 13-20)
+                new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Je me sens motivé(e) à réussir à l'école",
+					Type = "single_choice",
+					Order = 13,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Je crois que je peux réussir mes études",
+					Type = "single_choice",
+					Order = 14,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Mes parents m'encouragent dans mes études",
+					Type = "single_choice",
+					Order = 15,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "J'ai des amis qui m'encouragent à l'école",
+					Type = "single_choice",
+					Order = 16,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Mes enseignants m'aident quand j'ai des difficultés",
+					Type = "single_choice",
+					Order = 17,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Je me sens bien dans mon école",
+					Type = "single_choice",
+					Order = 18,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "Je sais ce que je veux faire après le secondaire",
+					Type = "single_choice",
+					Order = 19,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				},
+				new QuestionnaireQuestion
+				{
+					QuestionnaireId = questionnaire.Id,
+					Text = "J'aime mon école",
+					Type = "single_choice",
+					Order = 20,
+					IsRequired = false,
+					OptionsJson = "[\"Totalement en désaccord\",\"En désaccord\",\"Neutre\",\"D'accord\",\"Totalement d'accord\"]"
+				}
+			};
+
+			context.QuestionnaireQuestions.AddRange(questions);
+			await context.SaveChangesAsync();
+
+			Console.WriteLine($"--> TEDP 2.0 template seeded successfully with {questions.Count} questions!");
+		}
+		else
+		{
+			Console.WriteLine("--> TEDP 2.0 template already exists");
+		}
+	}
+	catch (Exception ex)
+	{
+		Console.WriteLine($"--> Error seeding TEDP 2.0 template: {ex.Message}");
+		Console.WriteLine($"--> Stack trace: {ex.StackTrace}");
+	}
 }
 
 // CUSTOM REGISTER endpoint
@@ -169,6 +401,7 @@ app.MapPost("/api/auth/logout", async (SignInManager<AppUser> signInManager) =>
 app.MapFallbackToFile("/index.html");
 
 app.Run();
+
 
 // DTOs
 public record RegisterRequest(string Email, string Password, string Role);

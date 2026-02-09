@@ -65,10 +65,9 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
             // UPDATED: Use new validatePin endpoint
             const response = await api.validatePin(pin.trim());
 
-            if (response.isValid && response.survey) {
-                // Pass both survey data AND the PIN to parent component
+            if (response.isValid && response.questionnaire) { // Changed 'survey' to 'questionnaire'
                 onEnterIdQuestionnaire({
-                    survey: response.survey,
+                    survey: response.questionnaire, // Map 'questionnaire' from API to 'survey' prop
                     pin: pin.trim()
                 });
             } else {

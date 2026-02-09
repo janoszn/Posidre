@@ -42,7 +42,6 @@ describe('SignInCard', () => {
 
         await user.type(emailInput, 'invalid-email');
 
-        // Déclenche la soumission directement via fireEvent pour contourner la validation HTML5
         fireEvent.submit(form);
 
         await waitFor(() => {
@@ -116,15 +115,12 @@ describe('SignInCard', () => {
         expect(mockOnShowSignUp).toHaveBeenCalled();
     });
 
-    // FIXED: Correct validatePin response structure
     it('submits survey code successfully', async () => {
         const user = userEvent.setup();
         const mockOnEnterIdQuestionnaire = vi.fn();
-
-        // FIXED: validatePin returns { isValid: true, survey: {...} }
         const mockValidateResponse = {
             isValid: true,
-            survey: {
+            questionnaire: {
                 id: 1,
                 title: 'Test Survey',
                 description: 'Test Description',
@@ -144,9 +140,8 @@ describe('SignInCard', () => {
 
         await waitFor(() => {
             expect(api.validatePin).toHaveBeenCalledWith('123456');
-            // FIXED: Callback receives { survey, pin }
             expect(mockOnEnterIdQuestionnaire).toHaveBeenCalledWith({
-                survey: mockValidateResponse.survey,
+                survey: mockValidateResponse.questionnaire,
                 pin: '123456'
             });
         });
@@ -155,7 +150,6 @@ describe('SignInCard', () => {
     it('displays error for invalid survey code', async () => {
         const user = userEvent.setup();
 
-        // FIXED: Reject with proper error structure
         api.validatePin.mockRejectedValue({
             response: { message: 'Code PIN invalide ou déjà utilisé' }
         });
@@ -173,18 +167,15 @@ describe('SignInCard', () => {
         });
     });
 
-    // BONUS: Additional tests for PIN validation
     it('only allows 6-digit numeric input for PIN', async () => {
         const user = userEvent.setup();
         render(<SignInCard {...defaultProps} />);
 
         const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
 
-        // Try typing letters (should be filtered out)
         await user.type(codeInput, 'abc123def');
         expect(codeInput).toHaveValue('123');
 
-        // Clear and try more than 6 digits
         await user.clear(codeInput);
         await user.type(codeInput, '12345678');
         expect(codeInput).toHaveValue('123456'); // Max 6 digits
@@ -197,14 +188,11 @@ describe('SignInCard', () => {
         const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
         const goButton = screen.getByRole('button', { name: /questionnaire/i });
 
-        // Initially disabled (empty)
         expect(goButton).toBeDisabled();
 
-        // Still disabled with less than 6 digits
         await user.type(codeInput, '12345');
         expect(goButton).toBeDisabled();
 
-        // Enabled with exactly 6 digits
         await user.type(codeInput, '6');
         expect(goButton).toBeEnabled();
     });
@@ -212,7 +200,6 @@ describe('SignInCard', () => {
     it('shows loading state while validating PIN', async () => {
         const user = userEvent.setup();
 
-        // Mock slow API response
         api.validatePin.mockImplementation(() =>
             new Promise(resolve => setTimeout(() => resolve({
                 isValid: true,
@@ -228,12 +215,10 @@ describe('SignInCard', () => {
         await user.type(codeInput, '123456');
         await user.click(goButton);
 
-        // Should show loading state
         await waitFor(() => {
             expect(screen.getByText(/vérification/i)).toBeInTheDocument();
         });
 
-        // Wait for completion
         await waitFor(() => {
             expect(api.validatePin).toHaveBeenCalled();
         }, { timeout: 200 });
@@ -246,10 +231,8 @@ describe('SignInCard', () => {
         const codeInput = screen.getByPlaceholderText(/6 chiffres/i);
         const goButton = screen.getByRole('button', { name: /questionnaire/i });
 
-        // Try submitting with less than 6 digits
         await user.type(codeInput, '12345');
 
-        // Button should be disabled, so this won't actually submit
         expect(goButton).toBeDisabled();
     });
 });

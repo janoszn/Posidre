@@ -25,4 +25,36 @@ export const api = {
 
     // STUDENT ROUTE (Updated)
     validatePin: (pin) => client.get(`/api/survey/validate/${pin}`),
+
+    // ==================== PASSATION ROUTES ====================
+
+    // Get all passations for current admin
+    getPassations: () => client.get('/api/passation'),
+
+    // Create new passation with groups and codes
+    createPassation: (data) => client.post('/api/passation/create', data),
+
+    // Add codes to existing passation
+    addCodesToPassation: (data) => client.post('/api/passation/add-codes', data),
+
+    // Reactivate individual code
+    reactivateCode: (code) => client.post('/api/passation/reactivate-code', code),
+
+    // Relaunch passation (reactivate all codes)
+    relaunchPassation: (passationId) => client.post(`/api/passation/${passationId}/relaunch`, {}),
+
+    // Get passation status before closing
+    getPassationStatus: (passationId) => client.get(`/api/passation/${passationId}/status`),
+
+    // Close passation
+    closePassation: (passationId) => client.post(`/api/passation/${passationId}/close`, {}),
+
+    // Reopen passation
+    reopenPassation: (passationId) => client.post(`/api/passation/${passationId}/reopen`, {}),
+
+    // Archive (delete) passation
+    archivePassation: (passationId) => client.delete(`/api/passation/${passationId}/archive`),
+
+    // Get passation submissions
+    getPassationSubmissions: (passationId) => client.get(`/api/survey/passation/${passationId}/submissions`),
 };
