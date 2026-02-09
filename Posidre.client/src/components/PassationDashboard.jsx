@@ -103,31 +103,31 @@ export default function PassationDashboard() {
             {/* Main Content */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                 <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
-                    <TabsTrigger value="list" className="gap-2">
+                    <TabsTrigger value="list" className="gap-2 hover:bg-primary/10 hover:text-primary transition-colors">
                         <ClipboardList className="h-4 w-4" />
                         <span className="hidden sm:inline">Passations</span>
                     </TabsTrigger>
-                    <TabsTrigger value="create" className="gap-2">
+                    <TabsTrigger value="create" className="gap-2 hover:bg-primary/10 hover:text-primary transition-colors">
                         <Plus className="h-4 w-4" />
                         <span className="hidden sm:inline">Créer</span>
                     </TabsTrigger>
-                    <TabsTrigger value="reactivate" className="gap-2">
+                    <TabsTrigger value="reactivate" className="gap-2 hover:bg-primary/10 hover:text-primary transition-colors">
                         <RefreshCw className="h-4 w-4" />
                         <span className="hidden sm:inline">Réactiver</span>
                     </TabsTrigger>
-                    <TabsTrigger value="relaunch" className="gap-2">
+                    <TabsTrigger value="relaunch" className="gap-2 hover:bg-primary/10 hover:text-primary transition-colors">
                         <RefreshCw className="h-4 w-4" />
                         <span className="hidden sm:inline">Relancer</span>
                     </TabsTrigger>
-                    <TabsTrigger value="close" className="gap-2">
+                    <TabsTrigger value="close" className="gap-2 hover:bg-primary/10 hover:text-primary transition-colors">
                         <Lock className="h-4 w-4" />
                         <span className="hidden sm:inline">Fermer</span>
                     </TabsTrigger>
-                    <TabsTrigger value="reopen" className="gap-2">
+                    <TabsTrigger value="reopen" className="gap-2 hover:bg-primary/10 hover:text-primary transition-colors">
                         <Unlock className="h-4 w-4" />
                         <span className="hidden sm:inline">Rouvrir</span>
                     </TabsTrigger>
-                    <TabsTrigger value="archive" className="gap-2">
+                    <TabsTrigger value="archive" className="gap-2 hover:bg-primary/10 hover:text-primary transition-colors">
                         <Archive className="h-4 w-4" />
                         <span className="hidden sm:inline">Archiver</span>
                     </TabsTrigger>
