@@ -1,25 +1,49 @@
+using System.Text.Json.Serialization;
+
 namespace Posidre.Server.Models
 {
+	// ==================== SUBMISSION ====================
+
+	/// <summary>
+	/// Soumission d'un questionnaire (peut être répétée jusqu'à 4 fois)
+	/// </summary>
 	public class Submission
 	{
 		public int Id { get; set; }
-		public int SurveyId { get; set; }
-		public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
+		public int PassationId { get; set; }
+		public int CodeId { get; set; } // Quel code a été utilisé
 
-		// REMOVED: public string StudentName { get; set; } = string.Empty; 
+		// Temps de mesure (1-4 pour mesures longitudinales)
+		public int MeasurementTime { get; set; } = 1; // T1, T2, T3, T4
 
-		// NEW: Link to the PIN used (for tracking which PIN was used)
-		public string PinUsed { get; set; } = string.Empty;
+		// Métadonnées
+		public DateTimeOffset SubmittedAt { get; set; } = DateTimeOffset.UtcNow;
+		public int? CompletedInSeconds { get; set; } // Durée de complétion
 
-		// On stocke les réponses sous forme de liste
+		// Navigation
+		[JsonIgnore]
+		public Passation? Passation { get; set; }
+		[JsonIgnore]
+		public PassationCode? Code { get; set; }
 		public List<Answer> Answers { get; set; } = new();
 	}
 
+	// ==================== ANSWER ====================
+
+	/// <summary>
+	/// Réponse individuelle à une question
+	/// </summary>
 	public class Answer
 	{
 		public int Id { get; set; }
-		public int QuestionId { get; set; }
-		public string Value { get; set; } = string.Empty; // La réponse choisie
 		public int SubmissionId { get; set; }
+		public int QuestionId { get; set; } // Lien vers QuestionnaireQuestions
+		public string Value { get; set; } = string.Empty;
+
+		// Navigation
+		[JsonIgnore]
+		public Submission? Submission { get; set; }
+		[JsonIgnore]
+		public QuestionnaireQuestion? Question { get; set; }
 	}
 }

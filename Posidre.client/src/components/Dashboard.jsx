@@ -1,72 +1,110 @@
-import { LogOut } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useState } from 'react';
 import AdminContent from './AdminContent';
-import StudentContent from './StudentContent';
 import TeacherContent from './TeacherContent';
-import SchoolAdminContent from './SchoolAdminContent';
-import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
-
-const dashboardByRole = {
-    Admin: AdminContent,
-    Student: StudentContent,
-    Teacher: TeacherContent,
-    SchoolAdmin: SchoolAdminContent,
-};
-
-const roleColors = {
-    Admin: 'destructive',
-    Student: 'default',
-    Teacher: 'secondary',
-    SchoolAdmin: 'default', // NEW - or choose a different color
-};
-
-const roleTitles = {
-    Admin: 'Administrateur',
-    Student: 'Étudiant',
-    Teacher: 'Enseignant',
-    SchoolAdmin: 'Admin Scolaire', // NEW
-};
+import PassationDashboard from './PassationDashboard';
+import { Button } from "@/components/ui/button";
+import { LogOut, User } from 'lucide-react';
 
 export default function Dashboard({ user, onLogout }) {
-    const role = user?.role;
-    const ContentComponent = dashboardByRole[role];
+    const dashboardByRole = {
+        Admin: AdminContent,
+        Teacher: TeacherContent,
+        SchoolAdmin: PassationDashboard,
+    };
+
+    //const roleColors = {
+    //    Admin: 'destructive',
+    //    Teacher: 'default',
+    //    SchoolAdmin: 'default',
+    //};
+
+    const roleTitles = {
+        Admin: 'Administrateur',
+        Teacher: 'Enseignant',
+        SchoolAdmin: 'Admin Scolaire',
+    };
+
+    const DashboardContent = dashboardByRole[user.role];
+
+    if (!DashboardContent) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-xl text-destructive">Rôle non reconnu: {user.role}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background">
-            {/* Navbar */}
-            <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                    <h1 className="text-2xl font-bold">POSIDRE</h1>
+            {/* Header */}
+            <header className="border-b bg-card">
+                <div className="container mx-auto px-4 py-4">
+                    <div className="flex items-center justify-between">
+                        {/* Logo & Title */}
+                        <div className="flex items-center gap-4">
+                            <div className="bg-gradient-to-br from-primary to-orange-500 text-white p-3 rounded-lg shadow-lg">
+                                <svg
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold">POSIDRE</h1>
+                                <p className="text-sm text-muted-foreground">
+                                    Système de gestion TEDP 2.0
+                                </p>
+                            </div>
+                        </div>
 
-                    <div className="flex items-center gap-4">
-                        <Badge variant={roleColors[role]}>
-                            {roleTitles[role] || role}
-                        </Badge>
-
-                        <span className="hidden sm:inline text-sm text-muted-foreground">
-                            {user?.email}
-                        </span>
-
-                        <ColorModeIconDropdown />
-
-                        <Button variant="ghost" size="sm" onClick={onLogout}>
-                            <LogOut className="mr-2 h-4 w-4" />
-                            Déconnexion
-                        </Button>
+                        {/* User Info & Logout */}
+                        <div className="flex items-center gap-4">
+                            <div className="text-right hidden sm:block">
+                                <p className="text-sm font-medium">{user.email}</p>
+                                <p className="text-xs text-muted-foreground">
+                                    {roleTitles[user.role]}
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <User className="h-5 w-5 text-primary" />
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={onLogout}
+                                    className="gap-2"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Déconnexion</span>
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-8 max-w-4xl">
-                {ContentComponent ? (
-                    <ContentComponent />
-                ) : (
-                    <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                        <p className="text-destructive">Unknown role: {role}</p>
-                    </div>
-                )}
+            {/* Main Content */}
+            <main className="container mx-auto px-4 py-8">
+                <DashboardContent user={user} />
             </main>
+
+            {/* Footer */}
+            <footer className="border-t bg-card mt-12">
+                <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+                    <p>© 2025 POSIDRE - Système TEDP 2.0</p>
+                </div>
+            </footer>
         </div>
     );
 }

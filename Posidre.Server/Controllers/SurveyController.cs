@@ -1,7 +1,6 @@
 using Posidre.Server.Data;
 using Posidre.Server.Models;
 using Posidre.Server.DTO;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,94 +8,171 @@ namespace Posidre.Server.Controllers;
 
 [ApiController]
 [Route("api/survey")]
-[AllowAnonymous]
-public class PublicSurveyController : ControllerBase
+public class SurveyController : ControllerBase
 {
 	private readonly ApplicationDbContext _context;
 
-	public PublicSurveyController(ApplicationDbContext context)
+	public SurveyController(ApplicationDbContext context)
 	{
 		_context = context;
 	}
 
-	// GET: api/survey/validate/{pin}
-	// Check if PIN is valid and hasn't been used yet
+	/// <summary>
+	/// Valider un code PIN et charger le questionnaire
+	/// </summary>
 	[HttpGet("validate/{pin}")]
 	public async Task<IActionResult> ValidatePin(string pin)
 	{
-		var surveyPin = await _context.SurveyPins
-			.Include(sp => sp.Survey)
-			.ThenInclude(s => s.Questions)
-			.FirstOrDefaultAsync(sp => sp.Pin == pin);
+		// Nettoyer le PIN
+		pin = pin.Trim();
 
-		if (surveyPin == null)
-			return NotFound(new { message = "Code PIN invalide" });
-
-		if (surveyPin.IsUsed)
-			return BadRequest(new { message = "Ce code PIN a déjà été utilisé" });
-
-		if (!surveyPin.Survey.IsActive)
-			return BadRequest(new { message = "Ce questionnaire n'est plus actif" });
-
-		// Return survey data WITHOUT requiring student name
-		return Ok(new
+		if (pin.Length != 6 || !pin.All(char.IsDigit))
 		{
-			isValid = true,
-			survey = new
+			return BadRequest(new ValidatePinResponse
 			{
-				id = surveyPin.Survey.Id,
-				title = surveyPin.Survey.Title,
-				description = surveyPin.Survey.Description,
-				questions = surveyPin.Survey.Questions
+				IsValid = false
+			});
+		}
+
+		// Trouver le code
+		var passationCode = await _context.PassationCodes
+			.Include(pc => pc.Passation)
+				.ThenInclude(p => p!.Questionnaire)
+					.ThenInclude(q => q!.Questions)
+			.FirstOrDefaultAsync(pc => pc.Code == pin);
+
+		if (passationCode == null)
+		{
+			return Ok(new ValidatePinResponse
+			{
+				IsValid = false
+			});
+		}
+
+		// Vérifier si la passation est active
+		if (!passationCode.Passation!.IsActive || passationCode.Passation.IsArchived)
+		{
+			return Ok(new ValidatePinResponse
+			{
+				IsValid = false
+			});
+		}
+
+		// Vérifier si le code est actif
+		if (!passationCode.IsActive)
+		{
+			return Ok(new ValidatePinResponse
+			{
+				IsValid = false
+			});
+		}
+
+		// Vérifier si le code a atteint la limite (4 fois max)
+		if (passationCode.TimesUsed >= 4)
+		{
+			return Ok(new ValidatePinResponse
+			{
+				IsValid = false
+			});
+		}
+
+		// Calculer le prochain temps de mesure
+		var nextMeasurementTime = passationCode.TimesUsed + 1;
+
+		// Retourner le questionnaire
+		var questionnaire = passationCode.Passation.Questionnaire;
+
+		return Ok(new ValidatePinResponse
+		{
+			IsValid = true,
+			PassationId = passationCode.PassationId,
+			CodeId = passationCode.Id,
+			NextMeasurementTime = nextMeasurementTime,
+			Questionnaire = new QuestionnaireDto
+			{
+				Id = questionnaire!.Id,
+				Title = questionnaire.Title,
+				Description = questionnaire.Description,
+				Questions = questionnaire.Questions
 					.OrderBy(q => q.Order)
-					.Select(q => new
+					.Select(q => new QuestionDto
 					{
-						id = q.Id,
-						text = q.Text,
-						type = q.Type,
-						order = q.Order,
-						isRequired = q.IsRequired,
-						optionsJson = q.OptionsJson,
-						scaleMin = q.ScaleMin,
-						scaleMax = q.ScaleMax,
-						scaleMinLabel = q.ScaleMinLabel,
-						scaleMaxLabel = q.ScaleMaxLabel
+						Id = q.Id,
+						Text = q.Text,
+						Type = q.Type,
+						Order = q.Order,
+						IsRequired = q.IsRequired,
+						OptionsJson = q.OptionsJson,
+						ScaleMin = q.ScaleMin,
+						ScaleMax = q.ScaleMax,
+						ScaleMinLabel = q.ScaleMinLabel,
+						ScaleMaxLabel = q.ScaleMaxLabel
 					})
+					.ToList()
 			}
 		});
 	}
 
-	// POST: api/survey/submit
+	/// <summary>
+	/// Soumettre les réponses d'un questionnaire
+	/// </summary>
 	[HttpPost("submit")]
-	public async Task<IActionResult> Submit([FromBody] SubmissionDto dto)
+	public async Task<IActionResult> SubmitSurvey([FromBody] SubmitSurveyRequest request)
 	{
-		// 1. Validate PIN
-		var surveyPin = await _context.SurveyPins
-			.Include(sp => sp.Survey)
-			.FirstOrDefaultAsync(sp => sp.Pin == dto.Pin);
+		var pin = request.Pin.Trim();
 
-		if (surveyPin == null)
-			return BadRequest(new { message = "Code PIN invalide" });
+		// Valider le PIN
+		if (pin.Length != 6 || !pin.All(char.IsDigit))
+		{
+			return BadRequest("Code PIN invalide");
+		}
 
-		if (surveyPin.IsUsed)
-			return BadRequest(new { message = "Ce code PIN a déjà été utilisé" });
+		// Trouver le code
+		var passationCode = await _context.PassationCodes
+			.Include(pc => pc.Passation)
+			.FirstOrDefaultAsync(pc => pc.Code == pin);
 
-		if (!surveyPin.Survey.IsActive)
-			return BadRequest(new { message = "Ce questionnaire n'est plus actif" });
+		if (passationCode == null)
+		{
+			return BadRequest("Code PIN invalide");
+		}
 
-		// 2. Create submission (NO student name)
+		// Vérifier si la passation est active
+		if (!passationCode.Passation!.IsActive || passationCode.Passation.IsArchived)
+		{
+			return BadRequest("La passation n'est plus active");
+		}
+
+		// Vérifier si le code est actif
+		if (!passationCode.IsActive)
+		{
+			return BadRequest("Ce code a déjà été utilisé");
+		}
+
+		// Vérifier la limite
+		if (passationCode.TimesUsed >= 4)
+		{
+			return BadRequest("Ce code a atteint le maximum d'utilisations (4)");
+		}
+
+		// Calculer le temps de mesure
+		var measurementTime = passationCode.TimesUsed + 1;
+
+		// Créer la soumission
 		var submission = new Submission
 		{
-			SurveyId = surveyPin.SurveyId,
-			PinUsed = dto.Pin,  // Track which PIN was used
-			SubmittedAt = DateTime.UtcNow
+			PassationId = passationCode.PassationId,
+			CodeId = passationCode.Id,
+			MeasurementTime = measurementTime,
+			SubmittedAt = DateTimeOffset.UtcNow,
+			CompletedInSeconds = request.CompletedInSeconds
 		};
 
 		_context.Submissions.Add(submission);
 		await _context.SaveChangesAsync();
 
-		// 3. Save answers
-		var answers = dto.Answers.Select(a => new Answer
+		// Créer les réponses
+		var answers = request.Answers.Select(a => new Answer
 		{
 			SubmissionId = submission.Id,
 			QuestionId = a.QuestionId,
@@ -105,21 +181,53 @@ public class PublicSurveyController : ControllerBase
 
 		_context.Answers.AddRange(answers);
 
-		// 4. Mark PIN as used
-		surveyPin.IsUsed = true;
-		surveyPin.CompletedAt = DateTime.UtcNow;
-		surveyPin.SubmissionId = submission.Id;
+		// Mettre à jour le code
+		passationCode.TimesUsed++;
+		passationCode.IsActive = false; // Désactiver jusqu'à réactivation
+		passationCode.LastUsedAt = DateTimeOffset.UtcNow;
 
 		await _context.SaveChangesAsync();
 
-		return Ok(new { message = "Réponses enregistrées avec succès !" });
+		return Ok(new
+		{
+			message = "Questionnaire soumis avec succès",
+			submissionId = submission.Id,
+			measurementTime = measurementTime,
+			remainingUses = 4 - passationCode.TimesUsed
+		});
 	}
 
-	// GET: api/survey/public/{pin} - DEPRECATED but kept for backward compatibility
-	[HttpGet("public/{pin}")]
-	public async Task<IActionResult> GetByPin(string pin)
+	/// <summary>
+	/// Obtenir les soumissions d'une passation (pour SchoolAdmin)
+	/// </summary>
+	[HttpGet("passation/{passationId}/submissions")]
+	public async Task<IActionResult> GetPassationSubmissions(int passationId)
 	{
-		// Redirect to validate endpoint
-		return await ValidatePin(pin);
+		var submissions = await _context.Submissions
+			.Where(s => s.PassationId == passationId)
+			.Include(s => s.Code)
+				.ThenInclude(c => c!.Group)
+			.Include(s => s.Answers)
+				.ThenInclude(a => a.Question)
+			.OrderBy(s => s.SubmittedAt)
+			.Select(s => new
+			{
+				s.Id,
+				Pin = s.Code!.Code,
+				GroupName = s.Code.Group!.GroupName,
+				MeasurementTime = s.MeasurementTime,
+				SubmittedAt = s.SubmittedAt,
+				CompletedInSeconds = s.CompletedInSeconds,
+				Answers = s.Answers.Select(a => new
+				{
+					QuestionId = a.QuestionId,
+					QuestionText = a.Question!.Text,
+					QuestionOrder = a.Question.Order,
+					Value = a.Value
+				}).OrderBy(a => a.QuestionOrder).ToList()
+			})
+			.ToListAsync();
+
+		return Ok(submissions);
 	}
 }

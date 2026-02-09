@@ -248,7 +248,7 @@ export default function CreateSurveyForm({ onSuccess, onCancel }) {
                         <Info className="h-4 w-4" />
                         <AlertDescription className="text-sm">
                             <strong>Important:</strong> Le questionnaire TEDP 2.0 contient 20 questions. 
-                            Les codes PIN générés seront uniques et ne pourront être utilisés qu'une seule fois.
+                            Les codes PIN générés seront uniques et ne pourront être utilisés qu'une seule fois par passation.
                         </AlertDescription>
                     </Alert>
 
