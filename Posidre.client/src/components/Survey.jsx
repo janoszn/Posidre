@@ -7,12 +7,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { api } from '../services/api';
 import RenderQuestion from "./ui/RenderQuestion";
 import { Progress } from "@/components/ui/progress";
+import { Info } from 'lucide-react';
 
-export default function PublicSurvey({ survey, onCancel }) {
-    const [studentName, setStudentName] = useState('');
-    const [alreadyDone, setAlreadyDone] = useState(() => {
-        return !!localStorage.getItem(`survey_${survey.id}`);
-    });
+export default function PublicSurvey({ survey, pin, onCancel }) {
     const [isStarted, setIsStarted] = useState(false);
     const [answers, setAnswers] = useState({});
     const [currentPage, setCurrentPage] = useState(0);
@@ -61,20 +58,28 @@ export default function PublicSurvey({ survey, onCancel }) {
                     : answers[qId].toString()
             }));
 
+            // UPDATED: New submission format with PIN
             const submissionData = {
-                surveyId: survey.id,
-                studentName: studentName,
+                pin: pin, // Use PIN instead of surveyId
                 answers: formattedAnswers
+                // REMOVED: studentName - complete anonymity
             };
 
             await api.submitSurvey(submissionData);
-            localStorage.setItem(`survey_${survey.id}`, 'true');
-            setAlreadyDone(true);
-            alert("Merci ! Vos réponses ont été enregistrées.");
+
+            alert("Merci ! Vos réponses ont été enregistrées de manière anonyme.");
             onCancel();
         } catch (err) {
             console.error("Erreur d'envoi:", err);
-            alert("Erreur lors de l'envoi.");
+
+            // Better error messages
+            if (err.response?.message) {
+                alert(err.response.message);
+            } else if (err.message?.includes('already used')) {
+                alert("Ce code PIN a déjà été utilisé.");
+            } else {
+                alert("Erreur lors de l'envoi. Veuillez réessayer.");
+            }
         }
     };
 
@@ -92,25 +97,6 @@ export default function PublicSurvey({ survey, onCancel }) {
         });
     };
 
-    if (alreadyDone) {
-        return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <Card className="w-full max-w-md">
-                    <CardContent className="pt-6">
-                        <Alert>
-                            <AlertDescription>
-                                Vous avez déjà répondu à ce questionnaire. Merci !
-                            </AlertDescription>
-                        </Alert>
-                        <Button onClick={onCancel} className="w-full mt-4">
-                            Retour
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-background">
             <Card className="w-full max-w-2xl">
@@ -119,21 +105,31 @@ export default function PublicSurvey({ survey, onCancel }) {
                         <div className="text-center space-y-4">
                             <h1 className="text-3xl font-bold">{survey.title}</h1>
                             <p className="text-muted-foreground">{survey.description}</p>
-                            <div className="space-y-2 pt-4">
-                                <Label htmlFor="studentName">Votre Nom Complet</Label>
-                                <Input
-                                    id="studentName"
-                                    value={studentName}
-                                    onChange={(e) => setStudentName(e.target.value)}
-                                    placeholder="Jean Dupont"
-                                />
-                            </div>
+
+                            {/* UPDATED: Privacy notice instead of name input */}
+                            <Alert className="mt-6">
+                                <Info className="h-4 w-4" />
+                                <AlertDescription className="text-left">
+                                    <strong>Questionnaire anonyme:</strong> Vos réponses sont complètement anonymes.
+                                    Aucun nom ne sera enregistré. Assurez-vous d'avoir du temps pour compléter
+                                    le questionnaire en une session, car votre code PIN ne peut être utilisé qu'une seule fois.
+                                </AlertDescription>
+                            </Alert>
+
                             <Button
                                 className="w-full mt-4"
-                                disabled={!studentName}
                                 onClick={() => setIsStarted(true)}
+                                size="lg"
                             >
                                 Commencer le questionnaire ({sortedQuestions.length} questions)
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                onClick={onCancel}
+                                className="w-full"
+                            >
+                                Annuler
                             </Button>
                         </div>
                     </CardContent>

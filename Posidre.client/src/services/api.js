@@ -25,4 +25,13 @@ export const api = {
     getSurveySubmissions: (id) => client.get(`/api/teacher/surveys/${id}/submissions`),
     createSurvey: () => client.post('/api/teacher/surveys/create', {}),
     deleteSurvey: (id) => client.delete(`/api/teacher/surveys/${id}`),
+
+    // SCHOOL ADMIN ROUTES
+    getSchoolAdminSurveys: () => client.get('/api/schooladmin/surveys'),
+    getSchoolAdminSubmissions: (id) => client.get(`/api/schooladmin/surveys/${id}/submissions`),
+    createSchoolAdminSurvey: (data) => client.post('/api/schooladmin/surveys/create', data),
+    deleteSchoolAdminSurvey: (id) => client.delete(`/api/schooladmin/surveys/${id}`),
+
+    // STUDENT ROUTE (Updated)
+    validatePin: (pin) => client.get(`/api/survey/validate/${pin}`),
 };

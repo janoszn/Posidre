@@ -1,3 +1,7 @@
+// DEPRECATED USE ./SurveyResponses.jsx instead
+
+
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
