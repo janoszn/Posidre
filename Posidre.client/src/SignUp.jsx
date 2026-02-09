@@ -22,20 +22,18 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
 
         const newErrors = {};
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
-            newErrors.email = 'Please enter a valid email address.';
+            newErrors.email = 'Veuillez entrer une adresse courriel valide.';
         }
         if (!password || password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters long.';
+            newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères.';
         }
         if (!name || name.length < 1) {
-            newErrors.name = 'Name is required.';
+            newErrors.name = 'Le nom est requis.';
         }
-
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
-
         try {
             await api.register(email, password, role);
             const userData = await api.getUserInfo();
@@ -54,10 +52,10 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                     setErrors(parsedErrors);
                 }
             } else {
-                setApiError(err.message || "Registration failed");
+                setApiError(err.message || "L'inscription a échoué");
             }
         }
-    };
+    };  
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50 dark:from-background dark:to-orange-950 p-4">
@@ -77,7 +75,6 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                 placeholder="Prénom Nom"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                required
                             />
                             {errors.name && (
                                 <p className="text-sm text-destructive">{errors.name}</p>
@@ -90,10 +87,9 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="your@email.com"
+                                placeholder="votre@courriel.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                required
                             />
                             {errors.email && (
                                 <p className="text-sm text-destructive">{errors.email}</p>
@@ -109,7 +105,6 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                 placeholder="••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                required
                             />
                             {errors.password && (
                                 <p className="text-sm text-destructive">{errors.password}</p>
@@ -127,6 +122,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                                     <SelectItem value="Student">Étudiant</SelectItem>
                                     <SelectItem value="Teacher">Enseignant</SelectItem>
                                     <SelectItem value="Admin">Admin</SelectItem>
+                                    <SelectItem value="SchoolAdmin">Admin-École</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -159,7 +155,7 @@ export default function SignUp({ onRegisterSuccess, onShowLogin }) {
                             <button
                                 type="button"
                                 onClick={onShowLogin}
-                                className="font-medium text-primary hover:text-primary/80"
+                                className="font-medium text-primary hover:text-primary/80 hover:underline"
                             >
                                 Se connecter
                             </button>

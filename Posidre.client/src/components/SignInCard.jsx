@@ -117,7 +117,6 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             disabled={loading}
-                            required
                         />
                         {errors.email && (
                             <p className="text-sm text-destructive">{errors.email}</p>
@@ -133,7 +132,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                             </Label>
                             <button
                                 type="button"
-                                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+                                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors hover:underline"
                                 onClick={() => alert('Mot de passe oublié cliqué')}
                                 disabled={loading}
                             >
@@ -144,9 +143,9 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                             id="password"
                             type="password"
                             value={password}
+                            placeholder="Mot de passe"
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
-                            required
                         />
                         {errors.password && (
                             <p className="text-sm text-destructive">{errors.password}</p>
@@ -175,7 +174,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                         <button
                             type="button"
                             onClick={onShowSignUp}
-                            className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                            className="font-semibold text-primary hover:text-primary/80 transition-colors hover:underline"
                             disabled={loading}
                         >
                             S'inscrire
@@ -207,7 +206,7 @@ export default function SignInCard({ onLoginSuccess, onShowSignUp, onEnterIdQues
                                 const value = e.target.value.replace(/\D/g, '').slice(0, 6);
                                 setPin(value);
                             }}
-                            className="bg-card border-primary/30 focus:border-primary text-center text-lg font-mono tracking-wider"
+                            className="bg-card border-primary/30 focus:border-primary text-lg"
                             maxLength={6}
                             pattern="[0-9]{6}"
                             disabled={pinLoading}
