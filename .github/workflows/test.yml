@@ -45,7 +45,13 @@ jobs:
     - name: Install dependencies
       run: npm ci
       working-directory: Posidre.client
-    
+
+    - name: Recreate SSL Certificates
+      run: |
+        echo "${{ secrets.LOCALHOST_KEY }}" > localhost+2-key.pem
+        echo "${{ secrets.LOCALHOST_CERT }}" > localhost+2.pem
+      working-directory: Posidre.client
+
     - name: Run tests
       run: npm test
       working-directory: Posidre.client
