@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Loader2, Plus, ClipboardList, Copy, Check, Info, Calendar } from 'lucide-react';
-import SurveyAnswers from './SurveyAnswers';
+import ViewPassationDetails from './ViewPassationDetails';
 import { api } from '../services/api';
 
 export default function TeacherContent() {
@@ -192,7 +192,7 @@ export default function TeacherContent() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             ) : selectedSurvey ? (
-                <SurveyAnswers
+                    <ViewPassationDetails
                     submissions={submissions}
                     survey={selectedSurvey}
                     onDelete={handleDeleteSurvey}

@@ -4,6 +4,7 @@ import TeacherContent from './TeacherContent';
 import PassationDashboard from './PassationDashboard';
 import { Button } from "@/components/ui/button";
 import { LogOut, User } from 'lucide-react';
+import ColorModeIconDropdown from "../shared-theme/ColorModeIconDropdown"
 
 export default function Dashboard({ user, onLogout }) {
     const dashboardByRole = {
@@ -74,6 +75,9 @@ export default function Dashboard({ user, onLogout }) {
                                     <span className="hidden sm:inline">Déconnexion</span>
                                 </Button>
                             </div>
+                            <div className="fixed top-4 right-4 z-50">
+                                <ColorModeIconDropdown />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -85,7 +89,7 @@ export default function Dashboard({ user, onLogout }) {
             </main>
 
             {/* Footer */}
-            <footer className="border-t bg-card mt-12">
+            <footer className="group-has-[.section-soft]/body:bg-surface/40 3xl:fixed:bg-transparent dark:group-has-[.section-soft]/body:bg-surface/40 group-has-[.docs-nav]/body:pb-20 group-has-[[data-slot=designer]]/body:hidden group-has-[[data-slot=docs]]/body:hidden group-has-[.docs-nav]/body:sm:pb-0 dark:bg-transparent">
                 <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
                     <p>© 2025 POSIDRE - Système TEDP 2.0</p>
                 </div>
